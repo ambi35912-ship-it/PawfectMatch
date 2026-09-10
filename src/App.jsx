@@ -359,22 +359,22 @@ export default function App() {
     const matchedSpot = spots.find((s) => {
       const sName = s.name.toLowerCase();
       if (searchName && (sName.includes(searchName) || searchName.includes(sName))) return true;
-      const keywords = ['alta plaza', 'crissy field', 'marina green', 'mission dolores', 'duboce', 'fort funston', 'presidio'];
+      const keywords = ['cubbon', 'carter', 'therpup', 'lodhi', 'koregaon', 'whitefield', 'bandra', 'indiranagar'];
       return keywords.some((k) => sName.includes(k) && searchName.includes(k));
     });
 
     const fallbackSpot = {
       id: spotOrLocation.id || `spot_${Date.now()}`,
-      name: spotOrLocation.name || spotOrLocation.location || spotOrLocation.locationName || 'Alta Plaza Park Dog Play Area',
+      name: spotOrLocation.name || spotOrLocation.location || spotOrLocation.locationName || 'Cubbon Park Canine Play Zone',
       type: spotOrLocation.type || 'Fenced Dog Park',
       rating: spotOrLocation.rating || 4.9,
-      reviewsCount: spotOrLocation.reviewsCount || 184,
-      distance: spotOrLocation.distance || '0.9 mi',
+      reviewsCount: spotOrLocation.reviewsCount || 482,
+      distance: spotOrLocation.distance || '1.2 km',
       image: spotOrLocation.image || 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=600&q=80',
-      address: spotOrLocation.address || 'Jackson St & Scott St, Pacific Heights',
+      address: spotOrLocation.address || 'Kasturba Road, Bengaluru, Karnataka',
       amenities: spotOrLocation.amenities && spotOrLocation.amenities.length > 0
         ? spotOrLocation.amenities
-        : ['Double Gated', 'Fresh Water Fountain', 'Benches', 'Breathtaking City Views'],
+        : ['Double Gated', 'Fresh Water Troughs', 'Canopy Shade Benches', 'Dedicated Off-Leash Area'],
       popularHours: spotOrLocation.popularHours || 'Open daily 6:00 AM - 10:00 PM',
       playdateTitle: spotOrLocation.title,
       playdateDateTime: spotOrLocation.dateTime,

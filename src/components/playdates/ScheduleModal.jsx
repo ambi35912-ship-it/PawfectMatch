@@ -31,17 +31,17 @@ export default function ScheduleModal({
     const newPlaydate = {
       id: `pd_${Date.now()}`,
       petName: targetPet ? (targetPet.petName || targetPet.name) : 'Luna',
-      petBreed: targetPet ? targetPet.breed : 'Australian Shepherd',
+      petBreed: targetPet ? targetPet.breed : 'Indie Desi Hound',
       petAvatar: targetPet ? (targetPet.avatar || targetPet.primaryPhoto) : '',
       ownerName: targetPet?.ownerName || 'Pet Parent',
       title: playStyle,
       date: selectedDay,
       time: selectedTime,
-      locationName: targetSpot?.name || 'Local Dog Park',
-      address: targetSpot?.address || 'San Francisco, CA',
+      locationName: targetSpot?.name || 'Cubbon Park Canine Play Zone',
+      address: targetSpot?.address || 'Kasturba Road, Bengaluru, Karnataka',
       status: 'Confirmed',
       tags: ['Fenced Dog Park', 'Water Station', 'Fresh Air'],
-      weather: '65°F • Pleasant'
+      weather: '26°C • Pleasant'
     };
 
     onSavePlaydate(newPlaydate, targetPet);

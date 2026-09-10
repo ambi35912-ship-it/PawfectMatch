@@ -129,8 +129,8 @@ export default function ChatView({
         sender: 'me',
         status: 'accepted',
         title: updatedPlaydate.title || 'Rescheduled Playdate',
-        location: updatedPlaydate.location || 'Alta Plaza Dog Play Area',
-        address: updatedPlaydate.address || 'Jackson St, SF',
+        location: updatedPlaydate.location || 'Cubbon Park Canine Play Zone',
+        address: updatedPlaydate.address || 'Kasturba Road, Bengaluru, Karnataka',
         dateTime: updatedPlaydate.dateTime,
         time: 'Just now'
       }

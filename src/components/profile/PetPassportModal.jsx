@@ -260,14 +260,14 @@ export default function PetPassportModal({ isOpen, onClose, pet, onCopy }) {
                 <div className="flex items-start gap-2">
                   <Stethoscope className="w-4 h-4 text-coral-500 shrink-0 mt-0.5" />
                   <div>
-                    <strong>Primary Clinic:</strong> Marina Vet Clinic • (415) 555-0192 (Dr. Sarah Chen)
+                    <strong>Primary Clinic:</strong> Cessna Lifeline Veterinary Hospital • +91 80 4115 1234 (Dr. Priya Sharma)
                   </div>
                 </div>
 
                 <div className="flex items-start gap-2">
                   <Heart className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
                   <div>
-                    <strong>24/7 Emergency Hospital:</strong> SF VCA Animal Hospital • (415) 555-0911
+                    <strong>24/7 Emergency Hospital:</strong> Cessna 24/7 Animal Emergency Care • +91 80 4115 1234
                   </div>
                 </div>
               </div>

@@ -243,7 +243,7 @@ export default function UploadCertificateModal({ isOpen, onClose, pet, onSave })
                 required
                 value={clinicName}
                 onChange={(e) => setClinicName(e.target.value)}
-                placeholder="e.g. Marina Pet Hospital"
+                placeholder="e.g. Cessna Lifeline Hospital"
                 className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-warm-50 border border-warm-200 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
               />
             </div>
@@ -257,7 +257,7 @@ export default function UploadCertificateModal({ isOpen, onClose, pet, onSave })
                 type="text"
                 value={doctorName}
                 onChange={(e) => setDoctorName(e.target.value)}
-                placeholder="Dr. Sarah Chen"
+                placeholder="Dr. Priya Sharma, BVSc"
                 className="w-full px-3 py-2 rounded-xl bg-warm-50 border border-warm-200 text-xs font-medium text-slate-900 focus:outline-none"
               />
             </div>

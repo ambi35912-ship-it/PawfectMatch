@@ -31,7 +31,7 @@ export default function ParkDetailsModal({ isOpen, onClose, spot, onNavigate, on
               {spot.type || 'Fenced Dog Park'}
             </span>
             <h2 className="text-lg font-black tracking-tight drop-shadow-sm">
-              {spot.name || 'Alta Plaza Dog Play Area'}
+              {spot.name || 'Cubbon Park Canine Play Zone'}
             </h2>
           </div>
         </div>
@@ -117,13 +117,13 @@ export default function ParkDetailsModal({ isOpen, onClose, spot, onNavigate, on
           <div className="p-3 rounded-2xl bg-warm-50 border border-warm-200/60">
             <div className="flex items-center gap-2 mb-1">
               <div className="w-5 h-5 rounded-full bg-coral-500 text-white font-bold text-[10px] flex items-center justify-center">
-                C
+                A
               </div>
-              <span className="text-xs font-bold text-slate-900">Claire & Luna</span>
+              <span className="text-xs font-bold text-slate-900">Aanya & Luna</span>
               <span className="text-[10px] text-slate-400">• Verified Visitor</span>
             </div>
             <p className="text-xs text-slate-600 italic">
-              "Alta Plaza is our absolute favorite for high-speed fetch! Double gated entries make it super safe, and owners are always attentive."
+              "Cubbon Park is our absolute favorite for high-speed fetch! Double gated entries make it super safe, lush grass is easy on the paws, and other pet parents are always attentive."
             </p>
           </div>
 

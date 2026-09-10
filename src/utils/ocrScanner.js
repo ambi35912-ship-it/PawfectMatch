@@ -5,10 +5,10 @@
  */
 
 const KNOWN_CLINICS = [
-  { name: 'Bay Area Pet Hospital', license: 'CA-VET #48812', doctor: 'Dr. Sarah Chen, DVM' },
-  { name: 'Marina Veterinary Clinic', license: 'CA-VET #39102', doctor: 'Dr. Michael Rodriguez, DVM' },
-  { name: 'Presidio Pet Hospital & Wellness', license: 'CA-VET #78219', doctor: 'Dr. Jennifer Wu, DVM' },
-  { name: 'Pacific Heights Animal Medical Center', license: 'CA-VET #61204', doctor: 'Dr. Emily Vance, DVM' }
+  { name: 'Cessna Lifeline Veterinary Hospital', license: 'VCI Reg #KAR-2021-8842', doctor: 'Dr. Priya Sharma, BVSc & AH' },
+  { name: 'Crown Vet Animal Hospital', license: 'VCI Reg #MAH-2019-4412', doctor: 'Dr. Rajesh Kulkarni, MVSc' },
+  { name: 'Max Vets Specialized Animal Hospital', license: 'VCI Reg #DL-2020-7821', doctor: 'Dr. Sandeep Oberoi, BVSc' },
+  { name: 'Apollo Animal Clinic & Diagnostics', license: 'VCI Reg #TN-2022-6120', doctor: 'Dr. Ananya Rao, MVSc' }
 ];
 
 export async function scanVeterinaryDocument(file, onProgress) {
@@ -16,21 +16,21 @@ export async function scanVeterinaryDocument(file, onProgress) {
     onProgress?.({ stage: 1, message: 'Preprocessing document & analyzing image contrast...', percent: 25 });
 
     setTimeout(() => {
-      onProgress?.({ stage: 2, message: 'Detecting veterinary clinic seal & license number...', percent: 50 });
+      onProgress?.({ stage: 2, message: 'Detecting veterinary clinic seal & VCI registration number...', percent: 50 });
 
       setTimeout(() => {
-        onProgress?.({ stage: 3, message: 'Extracting Rabies, DHPP, and Bordetella records...', percent: 80 });
+        onProgress?.({ stage: 3, message: 'Extracting Rabies, 7-in-1 DHPP, and Bordetella records...', percent: 80 });
 
         setTimeout(() => {
           // Select intelligent matched clinic or parse from filename
           const fileName = file?.name?.toLowerCase() || '';
           let matchedClinic = KNOWN_CLINICS[0];
 
-          if (fileName.includes('marina')) {
+          if (fileName.includes('crown')) {
             matchedClinic = KNOWN_CLINICS[1];
-          } else if (fileName.includes('presidio')) {
+          } else if (fileName.includes('max')) {
             matchedClinic = KNOWN_CLINICS[2];
-          } else if (fileName.includes('pacific')) {
+          } else if (fileName.includes('apollo')) {
             matchedClinic = KNOWN_CLINICS[3];
           } else {
             // Pick based on hash

@@ -16,21 +16,21 @@ export default function InteractiveMap({ destination, initialCoordinates, onSele
   const [mapType, setMapType] = useState('standard'); // 'standard' | 'transit'
   const [activeStep, setActiveStep] = useState(0);
 
-  // Fallback SF coordinates
-  const lat = destination?.lat || initialCoordinates?.lat || 37.7915;
-  const lng = destination?.lng || initialCoordinates?.lng || -122.4374;
-  const parkName = destination?.name || destination?.locationName || 'Alta Plaza Dog Play Area';
-  const address = destination?.address || 'San Francisco, CA';
-  const distance = destination?.distance || '0.9 mi';
+  // Fallback Indian coordinates (Cubbon Park Canine Zone, Bengaluru)
+  const lat = destination?.lat || initialCoordinates?.lat || 12.9763;
+  const lng = destination?.lng || initialCoordinates?.lng || 77.5929;
+  const parkName = destination?.name || destination?.locationName || 'Cubbon Park Canine Play Zone';
+  const address = destination?.address || 'Kasturba Road, Bengaluru, Karnataka 560001';
+  const distance = destination?.distance || '1.2 km';
 
   const bbox = `${lng - 0.012}%2C${lat - 0.008}%2C${lng + 0.012}%2C${lat + 0.008}`;
   const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lng}`;
 
-  const navigationSteps = [
-    { instruction: 'Start from Marina District home / meetup point', dist: '0.1 mi' },
-    { instruction: 'Head south on Scott St toward Jackson St', dist: '0.4 mi' },
-    { instruction: 'Turn right at Alta Plaza off-leash double-gated entrance', dist: '0.4 mi' },
-    { instruction: `Arrive at ${parkName} (Water fountains on right)`, dist: 'Destination' }
+  const navigationSteps = destination?.steps || [
+    { instruction: 'Start from Indiranagar / MG Road meetup point', dist: '200 m' },
+    { instruction: 'Head west on Kasturba Road toward Cubbon Park Gate 3', dist: '600 m' },
+    { instruction: 'Turn right at the Canine Play Zone entrance (near Century Club)', dist: '400 m' },
+    { instruction: `Arrive at ${parkName} (Fresh water troughs & open lawn on left)`, dist: 'Destination' }
   ];
 
   const encodedAddress = encodeURIComponent(`${parkName}, ${address}`);

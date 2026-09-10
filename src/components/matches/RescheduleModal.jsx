@@ -85,7 +85,7 @@ export default function RescheduleModal({ isOpen, onClose, playdate, onConfirmRe
 
           <div className="p-3 rounded-xl bg-warm-50 border border-warm-200/70 text-xs text-slate-600">
             <MapPin className="w-3.5 h-3.5 text-coral-500 inline mr-1" />
-            <span>Venue remains at: <strong>{playdate.location || 'Alta Plaza Off-Leash Dog Park'}</strong></span>
+            <span>Venue remains at: <strong>{playdate.location || 'Cubbon Park Canine Play Zone'}</strong></span>
           </div>
 
           <div className="pt-2">

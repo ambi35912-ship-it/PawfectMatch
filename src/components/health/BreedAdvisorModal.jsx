@@ -21,8 +21,8 @@ export default function BreedAdvisorModal({ isOpen, onClose, currentBreed, onAdd
             </div>
             <div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-coral-600 flex items-center gap-1">
-                <Sparkles className="w-3 h-3" />
-                AAHA Veterinary Advisor
+                <Sparkles className="w-3.5 h-3.5" />
+                VCI Companion Health Advisor
               </span>
               <h2 className="text-xl font-black text-slate-900 tracking-tight">
                 Breed Health & Vaccine Guide

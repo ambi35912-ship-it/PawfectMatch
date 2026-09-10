@@ -8,9 +8,9 @@ export default function AddPetModal({ isOpen, onClose, onAddPet }) {
   const [species, setSpecies] = useState('Dog');
   const [name, setName] = useState('');
   const [breed, setBreed] = useState('');
-  const [age, setAge] = useState('1.5 yrs');
-  const [gender, setGender] = useState('Male');
-  const [weight, setWeight] = useState('24 lbs');
+  const [age, setAge] = useState('2 yrs');
+  const [gender, setGender] = useState('Female');
+  const [weight, setWeight] = useState('14 kg');
   const [energyLevel, setEnergyLevel] = useState('Moderate');
   const [playStyle, setPlayStyle] = useState('Short Zoomies & Patio Cafe Lounging');
   const [avatarIndex, setAvatarIndex] = useState(0);
@@ -103,7 +103,7 @@ export default function AddPetModal({ isOpen, onClose, onAddPet }) {
       age,
       gender,
       weight,
-      weightGoal: `${parseInt(weight) - 2}-${parseInt(weight) + 2} lbs`,
+      weightGoal: `${parseInt(weight) - 2}-${parseInt(weight) + 2} kg`,
       neutered: true,
       avatar: chosenAvatar,
       photos: [chosenAvatar],
@@ -111,10 +111,10 @@ export default function AddPetModal({ isOpen, onClose, onAddPet }) {
       playStyle,
       energyLevel,
       vaccinated: true,
-      size: parseInt(weight) > 45 ? 'Large' : parseInt(weight) > 22 ? 'Medium' : 'Small',
-      neighborhood: 'Marina District, San Francisco',
+      size: parseInt(weight) > 22 ? 'Large' : parseInt(weight) > 10 ? 'Medium' : 'Small',
+      neighborhood: 'Indiranagar, Bengaluru, Karnataka',
       owner: {
-        name: 'Alex Rivera',
+        name: 'Arjun Mehta',
         avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
         verified: true,
         memberSince: 'March 2024',
@@ -127,9 +127,9 @@ export default function AddPetModal({ isOpen, onClose, onAddPet }) {
           id: `cert_${Date.now()}`,
           documentName: certFile.name,
           fileSize: `${(certFile.size / 1024).toFixed(0)} KB`,
-          clinicName: clinicName.trim(),
-          doctor: 'Licensed Veterinarian',
-          licenseNumber: 'CA-VET #Verified',
+          clinicName: clinicName.trim() || 'Cessna Lifeline Veterinary Hospital',
+          doctor: 'Licensed Veterinarian, BVSc',
+          licenseNumber: 'VCI Reg #Verified',
           issueDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
           expiryDate: new Date(certExpiry).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
           verified: true,
@@ -353,10 +353,11 @@ export default function AddPetModal({ isOpen, onClose, onAddPet }) {
             </div>
             <div>
               <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 block">
-                Weight
+                Weight (kg)
               </label>
               <input
                 type="text"
+                placeholder="e.g. 14 kg"
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
                 className="w-full px-2.5 py-2 rounded-xl bg-warm-50 border border-warm-200 text-xs font-bold text-slate-800 focus:outline-none"
@@ -501,7 +502,7 @@ export default function AddPetModal({ isOpen, onClose, onAddPet }) {
                   required
                   value={clinicName}
                   onChange={(e) => setClinicName(e.target.value)}
-                  placeholder="e.g. Marina Vet"
+                  placeholder="e.g. Cessna Lifeline Hospital"
                   className="w-full px-2.5 py-1.5 rounded-xl bg-warm-50 border border-warm-200 text-xs font-bold text-slate-800 focus:outline-none"
                 />
               </div>

@@ -20,7 +20,7 @@ export default function EditPetModal({ isOpen, onClose, pet, onSave }) {
   const [breed, setBreed] = useState(pet.breed || '');
   const [age, setAge] = useState(pet.age || '2 yrs');
   const [gender, setGender] = useState(pet.gender || 'Male');
-  const [weight, setWeight] = useState(pet.weight || '55 lbs');
+  const [weight, setWeight] = useState(pet.weight || '25 kg');
   const [energyLevel, setEnergyLevel] = useState(pet.energyLevel || 'High');
   const [playStyle, setPlayStyle] = useState(pet.playStyle || 'High-energy Fetch & Gentle Romping');
   const [bio, setBio] = useState(pet.bio || '');
@@ -63,7 +63,7 @@ export default function EditPetModal({ isOpen, onClose, pet, onSave }) {
       breed: breed.trim(),
       age,
       gender,
-      weight: weight.includes('lbs') ? weight : `${weight} lbs`,
+      weight: weight.includes('kg') ? weight : `${weight} kg`,
       energyLevel,
       playStyle: playStyle.trim(),
       bio: bio.trim(),
@@ -189,13 +189,13 @@ export default function EditPetModal({ isOpen, onClose, pet, onSave }) {
 
             <div>
               <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 block">
-                Weight
+                Weight (kg)
               </label>
               <input
                 type="text"
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
-                placeholder="68 lbs"
+                placeholder="e.g. 25 kg"
                 className="w-full px-2.5 py-2 rounded-xl bg-warm-50 border border-warm-200 text-xs font-bold text-slate-900 focus:outline-none"
               />
             </div>

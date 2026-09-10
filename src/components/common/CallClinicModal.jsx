@@ -27,9 +27,9 @@ export default function CallClinicModal({ isOpen, onClose, appointment }) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const clinicName = appointment?.clinic || 'Bay Area Pet Hospital';
-  const doctor = appointment?.doctor || 'Dr. Sarah Chen, DVM';
-  const phoneNum = '(415) 555-0192';
+  const clinicName = appointment?.clinic || 'Cessna Lifeline Veterinary Hospital';
+  const doctor = appointment?.doctor || 'Dr. Priya Sharma, BVSc & AH';
+  const phoneNum = '+91 80 4115 1234';
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-950/75 backdrop-blur-sm p-0 sm:p-4">
@@ -122,7 +122,7 @@ export default function CallClinicModal({ isOpen, onClose, appointment }) {
               </div>
               <div className="pt-2 border-t border-warm-200 text-[11px] text-slate-500 flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5 text-coral-500 shrink-0" />
-                <span>{appointment?.address || '2240 Lombard St, San Francisco, CA'}</span>
+                <span>{appointment?.address || '148, 1st Cross, Domlur 2nd Stage, Bengaluru, Karnataka 560071'}</span>
               </div>
             </div>
 

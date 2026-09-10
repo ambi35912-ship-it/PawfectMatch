@@ -20,7 +20,7 @@ export const breedProfiles = {
         dueInDays: 21,
         dueDate: 'Mar 30, 2026',
         urgency: 'high',
-        reason: 'Recommended every 6 months for active dog-park visitors like Milo who visit Alta Plaza & Crissy Field.',
+        reason: 'Recommended every 6 months for active dog-park visitors like Milo who visit Cubbon Park & Carter Road.',
         recommendedFrequency: 'Every 6 months for social park dogs',
         procedure: 'Intranasal or oral vaccine'
       },
@@ -31,7 +31,7 @@ export const breedProfiles = {
         dueInDays: 35,
         dueDate: 'Apr 14, 2026',
         urgency: 'medium',
-        reason: 'Golden Retrievers frequently roam tall grass in Presidio trails; tests for Lyme, Anaplasma, Ehrlichia & Heartworm.',
+        reason: 'Golden Retrievers frequently roam tall grass in Indian park trails; tests for Tick Fever, Ehrlichia & Heartworm.',
         recommendedFrequency: 'Annual screening',
         procedure: 'Quick in-clinic blood draw'
       },

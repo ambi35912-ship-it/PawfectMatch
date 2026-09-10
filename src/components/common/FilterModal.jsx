@@ -63,21 +63,21 @@ export default function FilterModal({ isOpen, onClose, filters, setFilters }) {
                 Maximum Distance
               </label>
               <span className="text-xs font-bold text-coral-600 bg-coral-50 px-2 py-0.5 rounded-full">
-                Within {filters.maxDistance} miles
+                Within {filters.maxDistance} km
               </span>
             </div>
             <input
               type="range"
               min="1"
-              max="20"
+              max="25"
               value={filters.maxDistance}
               onChange={(e) => setFilters({ ...filters, maxDistance: Number(e.target.value) })}
               className="w-full accent-coral-500 h-2 bg-warm-200 rounded-lg cursor-pointer"
             />
             <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-medium">
-              <span>1 mi</span>
-              <span>10 mi</span>
-              <span>20 mi</span>
+              <span>1 km</span>
+              <span>12 km</span>
+              <span>25 km</span>
             </div>
           </div>
 

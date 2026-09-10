@@ -3,12 +3,12 @@ export const mockPets = [
     id: 'pet_luna',
     name: 'Luna',
     species: 'Dog',
-    breed: 'Australian Shepherd',
+    breed: 'Indie Desi Hound',
     age: '2 yrs',
     gender: 'Female',
-    weight: '44 lbs',
-    distance: '0.8 miles away',
-    locationName: 'Pacific Heights, SF',
+    weight: '20 kg',
+    distance: '0.8 km away',
+    locationName: 'Indiranagar, Bengaluru',
     compatibility: 96,
     compatibilityReason: 'Matches Milo\'s high energy and love for continuous open-field fetch.',
     compatibilityDetails: {
@@ -28,21 +28,21 @@ export const mockPets = [
     size: 'Medium',
     vaccinated: true,
     neutered: true,
-    favoriteActivities: ['Frisbee Catch', 'Beach Sprinting', 'Agility Weave'],
-    favoriteToy: 'ChuckIt Ultra Flying Disc',
-    bio: 'Luna is a high-octane wiggle-butt who loves running full throttle and showing off her frisbee acrobatic leaps. She thrives with dogs who can keep up with her sprints and respect gentle cooldown pauses.',
-    quirks: 'Does a mini tippy-tap dance before any ball throw; tilts head 90 degrees when you say "squirrel".',
+    favoriteActivities: ['Frisbee Catch', 'Cubbon Park Sprints', 'Agility Weave'],
+    favoriteToy: 'ChuckIt Flying Disc',
+    bio: 'Luna is a high-octane Indie bundle of love who loves running full throttle and showing off her acrobatic leaps. She thrives with dogs who can keep up with her sprints and respect gentle cooldown pauses.',
+    quirks: 'Does a mini tippy-tap dance before any ball throw; tilts head 90 degrees when you say "treat".',
     owner: {
-      name: 'Claire Vance',
+      name: 'Aanya Sharma',
       avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80',
-      neighborhood: 'Pacific Heights',
+      neighborhood: 'Indiranagar, Bengaluru',
       verified: true,
       responseRate: '98%',
-      preferredTimes: 'Weekday mornings (7-8:30 AM), Saturday afternoons at Alta Plaza'
+      preferredTimes: 'Weekday mornings (7-8:30 AM), Sunday mornings at Cubbon Park'
     },
     healthSummary: {
-      vaccineStatus: 'All Current (Rabies, DHPP, Bordetella)',
-      verifiedVet: 'Dr. Jennifer Wu • Presidio Pet Hospital',
+      vaccineStatus: 'All Current (Rabies, 7-in-1 DHPP, Anti-Tick)',
+      verifiedVet: 'Dr. Priya Sharma • Cessna Lifeline Hospital',
       preventativesCurrent: true
     }
   },
@@ -53,11 +53,11 @@ export const mockPets = [
     breed: 'French Bulldog',
     age: '3 yrs',
     gender: 'Male',
-    weight: '28 lbs',
-    distance: '1.4 miles away',
-    locationName: 'Cow Hollow, SF',
+    weight: '13 kg',
+    distance: '1.4 km away',
+    locationName: 'Koramangala, Bengaluru',
     compatibility: 91,
-    compatibilityReason: 'Great companion for moderate tempo zoomies and relaxed sun-lounging.',
+    compatibilityReason: 'Great companion for moderate tempo zoomies and relaxed cafe hangouts.',
     compatibilityDetails: {
       energyMatch: 88,
       playStyleHarmony: 93,
@@ -75,21 +75,21 @@ export const mockPets = [
     size: 'Small',
     vaccinated: true,
     neutered: true,
-    favoriteActivities: ['Grass Rolls', 'Tug of War', 'Patio Cafe Hangouts'],
+    favoriteActivities: ['Grass Rolls', 'Tug of War', 'Pet Cafe Patios'],
     favoriteToy: 'Crinkly Plush Donut',
-    bio: 'Winston may have little legs, but he has the heart of a marathoner for the first 15 minutes! Afterward, he is the undisputed champion of belly rubs and cafe latte foam watching.',
-    quirks: 'Snores like a tiny chainsaw when napping in sunbeams.',
+    bio: 'Winston may have little legs, but he has the heart of a marathoner for the first 15 minutes! Afterward, he is the undisputed champion of belly rubs and watching pup cup foam at pet cafes.',
+    quirks: 'Snores like a tiny scooter when napping in afternoon sunlight.',
     owner: {
-      name: 'Marcus Brody',
+      name: 'Rohan Mehra',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
-      neighborhood: 'Cow Hollow',
+      neighborhood: 'Koramangala 4th Block',
       verified: true,
       responseRate: '95%',
-      preferredTimes: 'Weekend brunch hours, sunny park afternoons'
+      preferredTimes: 'Weekend brunch hours, evening park strolls'
     },
     healthSummary: {
-      vaccineStatus: 'All Current (Rabies, DHPP, Bordetella, Canine Flu)',
-      verifiedVet: 'Dr. Robert King • Marina Vet Associates',
+      vaccineStatus: 'All Current (Rabies, DHPP, Bordetella, Dewormed)',
+      verifiedVet: 'Dr. Ankit Verma • Cessna Lifeline Hospital',
       preventativesCurrent: true
     }
   },
@@ -100,9 +100,9 @@ export const mockPets = [
     breed: 'Siberian Husky',
     age: '1.5 yrs',
     gender: 'Male',
-    weight: '52 lbs',
-    distance: '2.1 miles away',
-    locationName: 'Presidio, SF',
+    weight: '24 kg',
+    distance: '2.1 km away',
+    locationName: 'Bandra West, Mumbai',
     compatibility: 94,
     compatibilityReason: 'Endless endurance and loves enthusiastic, polite wrestling.',
     compatibilityDetails: {
@@ -115,27 +115,27 @@ export const mockPets = [
       'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?auto=format&fit=crop&w=1200&q=85',
       'https://images.unsplash.com/photo-1568572933382-74d440642117?auto=format&fit=crop&w=1200&q=85'
     ],
-    personality: ['Talkative', 'Dramatic', 'Adventurous', 'Snow Pup'],
+    personality: ['Talkative', 'Dramatic', 'Adventurous', 'Gentle Giant'],
     playStyle: 'Tag Chasing & Vocal Wrestling',
     energyLevel: 'High',
     size: 'Large',
     vaccinated: true,
     neutered: true,
-    favoriteActivities: ['Presidio Trail Sprints', 'Digging Sand', 'Howling Serenades'],
-    favoriteToy: 'Rope Tug Knots',
-    bio: 'Kai has striking ice-blue eyes and a soprano singing voice. He is remarkably gentle with sensitive dogs but loves going all out in open grassy fields with fellow big buddies.',
-    quirks: 'Replies with a polite "woo woo" whenever you tell him it is time to go home.',
+    favoriteActivities: ['Carter Road Promenade Trot', 'Chasing Wind', 'Howling Serenades'],
+    favoriteToy: 'Braided Rope Tug Knots',
+    bio: 'Kai has striking ice-blue eyes and a dramatic vocal range. He is remarkably gentle with sensitive dogs but loves going all out in open grassy lawns with fellow energetic playmates.',
+    quirks: 'Replies with a polite "woo woo" whenever you tell him it is time to go back indoors.',
     owner: {
-      name: 'Elena Rostova',
+      name: 'Pooja Hegde',
       avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80',
-      neighborhood: 'Presidio Heights',
+      neighborhood: 'Bandra West, Mumbai',
       verified: true,
       responseRate: '100%',
-      preferredTimes: 'Early sunrise runs (6:30-8 AM), Sundays at Baker Beach'
+      preferredTimes: 'Early sunrise walks (6:30-8 AM), Carter Road evenings'
     },
     healthSummary: {
-      vaccineStatus: 'All Current & Certified',
-      verifiedVet: 'Dr. Daniel Ramos • Presidio Veterinary',
+      vaccineStatus: 'All Current & VCI Certified',
+      verifiedVet: 'Dr. Rajesh Kulkarni • Crown Vet Mumbai',
       preventativesCurrent: true
     }
   },
@@ -143,14 +143,14 @@ export const mockPets = [
     id: 'pet_bella',
     name: 'Bella',
     species: 'Dog',
-    breed: 'Nova Scotia Duck Toller',
+    breed: 'Beagle',
     age: '2 yrs',
     gender: 'Female',
-    weight: '38 lbs',
-    distance: '1.7 miles away',
-    locationName: 'Russian Hill, SF',
+    weight: '15 kg',
+    distance: '1.7 km away',
+    locationName: 'Whitefield, Bengaluru',
     compatibility: 89,
-    compatibilityReason: 'Water loving retriever spirit matches Milo\'s beach enthusiasm.',
+    compatibilityReason: 'Water loving hound spirit matches Milo\'s fetch enthusiasm.',
     compatibilityDetails: {
       energyMatch: 90,
       playStyleHarmony: 88,
@@ -161,27 +161,27 @@ export const mockPets = [
       'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=1200&q=85',
       'https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=1200&q=85'
     ],
-    personality: ['Curious', 'Water Hound', 'Smart', 'Gentle'],
+    personality: ['Curious', 'Sniff Master', 'Smart', 'Gentle'],
     playStyle: 'Water Fetch & Retrieving Duets',
     energyLevel: 'High',
     size: 'Medium',
     vaccinated: true,
     neutered: true,
-    favoriteActivities: ['Dock Diving', 'Tennis Ball Retrieval', 'Park Trail Walks'],
-    favoriteToy: 'Kong Floating Hydro Bone',
-    bio: 'Bella is a ginger bundle of joy who can spot a body of water from two blocks away. She plays respectfully, reads other dogs\' body language impeccably, and always shares her spare tennis ball.',
-    quirks: 'Stores tennis balls in her bed like golden treasure eggs.',
+    favoriteActivities: ['Therpup Splash Pool', 'Tennis Ball Retrieval', 'Garden Sniffing'],
+    favoriteToy: 'Floating Hydro Bone',
+    bio: 'Bella is a tri-color hound who can spot a treat or a pool from two blocks away. She plays respectfully, reads other dogs\' body language impeccably, and always shares her spare tennis ball.',
+    quirks: 'Stores tennis balls under her blanket like precious treasure gems.',
     owner: {
-      name: 'David Kim',
+      name: 'Dev Patel',
       avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80',
-      neighborhood: 'Russian Hill',
+      neighborhood: 'Whitefield, Bengaluru',
       verified: true,
       responseRate: '92%',
-      preferredTimes: 'Weekday afternoons (4:30 PM), Weekend beach sessions'
+      preferredTimes: 'Weekday evenings (5 PM), Weekend pool sessions'
     },
     healthSummary: {
       vaccineStatus: 'All Current (Rabies, DHPP, Bordetella)',
-      verifiedVet: 'Dr. Amy Higgins • Telegraph Hill Vets',
+      verifiedVet: 'Dr. Vikram Sethi • Whitefield Animal Care',
       preventativesCurrent: true
     }
   },
@@ -192,9 +192,9 @@ export const mockPets = [
     breed: 'Corgi (Pembroke)',
     age: '1 yr',
     gender: 'Male',
-    weight: '26 lbs',
-    distance: '0.5 miles away',
-    locationName: 'Marina Green, SF',
+    weight: '12 kg',
+    distance: '0.5 km away',
+    locationName: 'Jubilee Hills, Hyderabad',
     compatibility: 93,
     compatibilityReason: 'Playful spirit with gentle ground-level chase games.',
     compatibilityDetails: {
@@ -213,21 +213,21 @@ export const mockPets = [
     size: 'Small',
     vaccinated: true,
     neutered: true,
-    favoriteActivities: ['Marina Green Zooms', 'Puzzle Toys', 'Meeting Big Dogs'],
+    favoriteActivities: ['Garden Zooms', 'Brain Puzzle Toys', 'Meeting Big Dogs'],
     favoriteToy: 'Squeaky Hedgehog',
-    bio: 'Oliver thinks he is 6 feet tall and ready to rule the dog park. He is very respectful with larger dogs and loves when gentle big pals let him chase their tails.',
-    quirks: 'Splooting flat on cool hardwood floors immediately upon returning from walks.',
+    bio: 'Oliver thinks he is 6 feet tall and ready to rule the dog park. He is remarkably respectful with larger companions and loves when gentle big pals let him chase their tails.',
+    quirks: 'Splooting flat on cool marble floors immediately upon returning from walks.',
     owner: {
-      name: 'Jessica & Sam',
+      name: 'Sneha & Nikhil',
       avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80',
-      neighborhood: 'Marina District',
+      neighborhood: 'Jubilee Hills Road 36',
       verified: true,
       responseRate: '100%',
-      preferredTimes: 'Daily at Marina Green around 5:30 PM'
+      preferredTimes: 'Daily at park around 5:30 PM'
     },
     healthSummary: {
       vaccineStatus: 'All Puppy & 1-Year Boosters Complete',
-      verifiedVet: 'Dr. Sarah Chen • Marina Vet Clinic',
+      verifiedVet: 'Dr. K. Srinivas • Hyderabad Pet Hospital',
       preventativesCurrent: true
     }
   },
@@ -238,9 +238,9 @@ export const mockPets = [
     breed: 'Golden Doodle',
     age: '3 yrs',
     gender: 'Female',
-    weight: '50 lbs',
-    distance: '3.2 miles away',
-    locationName: 'Noe Valley, SF',
+    weight: '23 kg',
+    distance: '3.2 km away',
+    locationName: 'Hauz Khas, New Delhi',
     compatibility: 95,
     compatibilityReason: 'Near-identical play frequency and gentle greeting manners.',
     compatibilityDetails: {
@@ -259,21 +259,21 @@ export const mockPets = [
     size: 'Large',
     vaccinated: true,
     neutered: true,
-    favoriteActivities: ['Sunday Park Lounging', 'Sticks Gathering', 'Dog Cafe Visits'],
+    favoriteActivities: ['Lodhi Garden Strolls', 'Stick Gathering', 'Pet Friendly Bistro Visits'],
     favoriteToy: 'Plush Sheep with Crinkle Ears',
     bio: 'Cleo is a calm, fluffy teddy bear who loves welcoming new furry friends. She has zero aggression and is the ideal buddy for pets who prefer chill vibes or polite introductory sniffs.',
-    quirks: 'Carries giant sticks three times her size with immense pride.',
+    quirks: 'Carries neem and mango tree sticks three times her size with immense pride.',
     owner: {
-      name: 'Maya Lin',
+      name: 'Maya Sen',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-      neighborhood: 'Noe Valley',
+      neighborhood: 'Hauz Khas Enclave',
       verified: true,
       responseRate: '96%',
-      preferredTimes: 'Saturday mornings at Douglas Dog Park'
+      preferredTimes: 'Sunday mornings at Lodhi Garden'
     },
     healthSummary: {
-      vaccineStatus: 'All Current & Documented',
-      verifiedVet: 'Dr. Howard Gray • Mission Creek Vet',
+      vaccineStatus: 'All Current & VCI Documented',
+      verifiedVet: 'Dr. Sandeep Oberoi • Max Vets Delhi',
       preventativesCurrent: true
     }
   }

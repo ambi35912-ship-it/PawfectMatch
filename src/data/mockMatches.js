@@ -3,31 +3,31 @@ export const initialMatches = [
     id: 'match_luna',
     petId: 'pet_luna',
     petName: 'Luna',
-    breed: 'Australian Shepherd',
+    breed: 'Indie Desi Hound',
     avatar: 'https://images.unsplash.com/photo-1503256207526-0d5d80fa2f47?auto=format&fit=crop&w=400&q=80',
-    ownerName: 'Claire',
+    ownerName: 'Aanya',
     ownerAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
     compatibility: 96,
-    lastMessage: 'Alta Plaza at 10 AM on Saturday sounds perfect for Milo & Luna!',
+    lastMessage: 'Cubbon Park at 8 AM on Sunday sounds perfect for Milo & Luna!',
     lastMessageTime: '12m ago',
     unread: true,
     hasPlannedPlaydate: true,
     messages: [
-      { id: 'm1', sender: 'them', text: 'Hey Alex! Luna saw Milo\'s profile and did a double-take haha 🐶 She loves fetch too!', time: 'Yesterday 3:14 PM' },
-      { id: 'm2', sender: 'me', text: 'Hi Claire! Milo is always looking for a sprint buddy who can keep up with him! Does Luna like Alta Plaza?', time: 'Yesterday 3:20 PM' },
-      { id: 'm3', sender: 'them', text: 'She adores Alta Plaza! The upper grassy area is her favorite spot.', time: 'Yesterday 3:28 PM' },
+      { id: 'm1', sender: 'them', text: 'Hey Arjun! Luna saw Milo\'s profile and did a double-take haha 🐶 She loves fetch too!', time: 'Yesterday 3:14 PM' },
+      { id: 'm2', sender: 'me', text: 'Hi Aanya! Milo is always looking for a sprint buddy who can keep up with him! Does Luna like Cubbon Park?', time: 'Yesterday 3:20 PM' },
+      { id: 'm3', sender: 'them', text: 'She adores Cubbon Park! The canine lawn near Century Club is her favorite spot.', time: 'Yesterday 3:28 PM' },
       {
         id: 'm4',
         type: 'playdate_invite',
         sender: 'me',
         status: 'accepted',
-        title: 'High-Energy Fetch Romp',
-        location: 'Alta Plaza Off-Leash Dog Park',
-        address: 'Jackson & Steiner St, Pacific Heights',
-        dateTime: 'Saturday, Mar 14 • 10:00 AM',
+        title: 'High-Energy Fetch & Agility',
+        location: 'Cubbon Park Canine Play Zone',
+        address: 'Kasturba Road, Nunegundlapalli, Bengaluru',
+        dateTime: 'Sunday, Mar 15 • 8:00 AM',
         time: 'Today 9:15 AM'
       },
-      { id: 'm5', sender: 'them', text: 'Alta Plaza at 10 AM on Saturday sounds perfect for Milo & Luna! We will bring her favorite ChuckIt ball! 🎾', time: '12m ago' }
+      { id: 'm5', sender: 'them', text: 'Cubbon Park at 8 AM on Sunday sounds perfect for Milo & Luna! We will bring her favorite ChuckIt ball! 🎾', time: '12m ago' }
     ]
   },
   {

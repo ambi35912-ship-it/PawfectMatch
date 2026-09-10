@@ -9,11 +9,11 @@ export default function AddVaccineModal({ isOpen, onClose, onAddVaccine }) {
   const [validUntil, setValidUntil] = useState('Sep 2027');
   
   // Clinic details matching the upcoming vet visit bubble
-  const [clinic, setClinic] = useState('Marina Vet Clinic');
-  const [doctor, setDoctor] = useState('Dr. Sarah Chen, DVM');
-  const [address, setAddress] = useState('2240 Lombard St, San Francisco, CA');
-  const [phone, setPhone] = useState('(415) 555-0192');
-  const [lotNumber, setLotNumber] = useState('LOT-88219-BC');
+  const [clinic, setClinic] = useState('Cessna Lifeline Veterinary Hospital');
+  const [doctor, setDoctor] = useState('Dr. Priya Sharma, BVSc & AH');
+  const [address, setAddress] = useState('148, 1st Cross, Domlur 2nd Stage, Bengaluru, Karnataka');
+  const [phone, setPhone] = useState('+91 80 4115 1234');
+  const [lotNumber, setLotNumber] = useState('VCI-LOT-88219-IND');
 
   const presetVaccines = [
     'Bordetella (Kennel Cough)',
