@@ -16,10 +16,13 @@ import {
   Share2,
   Info,
   Navigation,
-  X
+  X,
+  Radio,
+  ArrowLeftRight
 } from 'lucide-react';
 import RescheduleModal from './RescheduleModal';
 import PhotoAttachmentModal from './PhotoAttachmentModal';
+import supabase from '../../lib/supabaseClient';
 
 export default function ChatView({
   match,
@@ -37,12 +40,19 @@ export default function ChatView({
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [audioProgress, setAudioProgress] = useState(0);
 
+  // Active sender persona for human testing ('me' = You & Milo, 'them' = Match partner)
+  const [activeSender, setActiveSender] = useState('me');
+  const [realtimeStatus, setRealtimeStatus] = useState('connecting'); // 'connecting' | 'connected' | 'idle'
+
   // Modals inside chat
   const [rescheduleData, setRescheduleData] = useState(null);
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
   const [zoomedPhoto, setZoomedPhoto] = useState(null);
 
   const messagesEndRef = useRef(null);
+  const clientIdRef = useRef(Math.random().toString(36).substring(2, 10));
+  const channelRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -56,6 +66,66 @@ export default function ChatView({
   useEffect(() => {
     onUpdateMessages?.(match.id, messages);
   }, [messages, match.id, onUpdateMessages]);
+
+  // Supabase Realtime Broadcast Channel for live user-to-user chatting
+  useEffect(() => {
+    if (!supabase) return;
+
+    const channelName = `match_chat_${match.id}`;
+    const channel = supabase.channel(channelName, {
+      config: {
+        broadcast: { self: false }
+      }
+    });
+
+    channel
+      .on('broadcast', { event: 'new_message' }, ({ payload }) => {
+        if (!payload || payload.senderClientId === clientIdRef.current) return;
+
+        // When received from another client/browser:
+        // A message sent with role 'partner' shows as 'them' for user, and vice versa
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === payload.id)) return prev;
+          return [
+            ...prev,
+            {
+              id: payload.id,
+              sender: payload.role === 'partner' ? 'them' : 'me',
+              senderName: payload.senderName,
+              text: payload.text,
+              time: payload.time || 'Just now',
+              type: payload.type,
+              imageUrl: payload.imageUrl,
+              status: payload.status,
+              title: payload.title,
+              location: payload.location,
+              address: payload.address,
+              dateTime: payload.dateTime,
+              ...payload.extra
+            }
+          ];
+        });
+      })
+      .on('broadcast', { event: 'typing_status' }, ({ payload }) => {
+        if (!payload || payload.senderClientId === clientIdRef.current) return;
+        setIsTyping(payload.isTyping);
+      })
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          setRealtimeStatus('connected');
+        } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+          setRealtimeStatus('idle');
+        }
+      });
+
+    channelRef.current = channel;
+
+    return () => {
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
+  }, [match.id]);
 
   // Simulated Voice Note audio timer
   useEffect(() => {
@@ -74,46 +144,94 @@ export default function ChatView({
     return () => clearInterval(interval);
   }, [isPlayingAudio]);
 
+  // Handle Input typing and broadcast typing state
+  const handleInputChange = (e) => {
+    const val = e.target.value;
+    setInputVal(val);
+
+    if (channelRef.current) {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'typing_status',
+        payload: {
+          isTyping: val.trim().length > 0,
+          senderClientId: clientIdRef.current
+        }
+      });
+
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = setTimeout(() => {
+        if (channelRef.current) {
+          channelRef.current.send({
+            type: 'broadcast',
+            event: 'typing_status',
+            payload: {
+              isTyping: false,
+              senderClientId: clientIdRef.current
+            }
+          });
+        }
+      }, 2500);
+    }
+  };
+
   const handleSend = (textToSend, extra = {}) => {
     const text = textToSend || inputVal.trim();
     if (!text && !extra.imageUrl) return;
 
+    const isUserMe = activeSender === 'me';
+    const senderRole = isUserMe ? 'user' : 'partner';
+    const senderName = isUserMe ? (userPet?.owner?.name || 'You') : match.ownerName;
+
     const newMsg = {
-      id: `msg_${Date.now()}`,
-      sender: 'me',
+      id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      sender: activeSender,
+      senderName,
       text: text,
-      time: 'Just now',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       ...extra
     };
 
+    // 1. Add locally
     setMessages((prev) => [...prev, newMsg]);
     setInputVal('');
 
-    // Trigger typing simulation and response
-    setIsTyping(true);
-    setTimeout(() => {
-      setIsTyping(false);
-      const replies = [
-        `That sounds fantastic! ${match.petName} just gave a happy tail wag! 🐾`,
-        `Perfect! We will meet you by the grass field near the water fountain! 🎾`,
-        `Can't wait! ${match.petName} has so much energy today, this will be so great for them!`,
-        `Awesome! We'll bring extra tennis balls and peanut butter treats! 🦴`
-      ];
-      const randomReply = replies[Math.floor(Math.random() * replies.length)];
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `reply_${Date.now()}`,
-          sender: 'them',
-          text: randomReply,
-          time: 'Just now'
+    // 2. Clear typing indicator broadcast
+    if (channelRef.current) {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'typing_status',
+        payload: {
+          isTyping: false,
+          senderClientId: clientIdRef.current
         }
-      ]);
-    }, 1800);
+      });
+    }
+
+    // 3. Broadcast to other connected users/devices via Supabase Realtime
+    if (channelRef.current) {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'new_message',
+        payload: {
+          id: newMsg.id,
+          role: senderRole,
+          senderName,
+          text: newMsg.text,
+          time: newMsg.time,
+          type: newMsg.type,
+          imageUrl: newMsg.imageUrl,
+          senderClientId: clientIdRef.current,
+          extra
+        }
+      });
+    }
+
+    // NO AUTOMATED BOT REPLIES: Removed fake setTimeout bot responses so users converse genuinely.
   };
 
   const handleSendReaction = (emoji, label) => {
-    handleSend(`${emoji} ${userPet.name} sent ${match.petName} a ${label}!`);
+    handleSend(`${emoji} ${activeSender === 'me' ? userPet?.name || 'Milo' : match.petName} sent a ${label}!`);
   };
 
   const handleSendPhoto = ({ imageUrl, caption }) => {
@@ -121,20 +239,32 @@ export default function ChatView({
   };
 
   const handleConfirmReschedule = (updatedPlaydate) => {
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: `invite_${Date.now()}`,
-        type: 'playdate_invite',
-        sender: 'me',
-        status: 'accepted',
-        title: updatedPlaydate.title || 'Rescheduled Playdate',
-        location: updatedPlaydate.location || 'Cubbon Park Canine Play Zone',
-        address: updatedPlaydate.address || 'Kasturba Road, Bengaluru, Karnataka',
-        dateTime: updatedPlaydate.dateTime,
-        time: 'Just now'
-      }
-    ]);
+    const isUserMe = activeSender === 'me';
+    const inviteMsg = {
+      id: `invite_${Date.now()}`,
+      type: 'playdate_invite',
+      sender: activeSender,
+      status: 'accepted',
+      title: updatedPlaydate.title || 'Rescheduled Playdate',
+      location: updatedPlaydate.location || 'Cubbon Park Canine Play Zone',
+      address: updatedPlaydate.address || 'Kasturba Road, Bengaluru, Karnataka',
+      dateTime: updatedPlaydate.dateTime,
+      time: 'Just now'
+    };
+
+    setMessages((prev) => [...prev, inviteMsg]);
+
+    if (channelRef.current) {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'new_message',
+        payload: {
+          ...inviteMsg,
+          role: isUserMe ? 'user' : 'partner',
+          senderClientId: clientIdRef.current
+        }
+      });
+    }
   };
 
   return (
@@ -185,6 +315,58 @@ export default function ChatView({
           <Calendar className="w-3.5 h-3.5 text-coral-500" />
           <span className="hidden sm:inline">Propose</span> Playdate
         </button>
+      </div>
+
+      {/* Realtime Live Status & Sender Switcher Bar */}
+      <div className="px-3.5 py-1.5 bg-gradient-to-r from-warm-100/90 via-white to-warm-100/90 border-b border-warm-200/70 flex flex-wrap items-center justify-between gap-2 z-10 shrink-0">
+        {/* Realtime Connection Status */}
+        <div className="flex items-center gap-1.5">
+          <span className="relative flex h-2 w-2">
+            {realtimeStatus === 'connected' ? (
+              <>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </>
+            ) : (
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400 animate-pulse" />
+            )}
+          </span>
+          <span className="text-[11px] font-bold text-slate-600 flex items-center gap-1">
+            <Radio className="w-3 h-3 text-emerald-600" />
+            {realtimeStatus === 'connected' ? 'Live Supabase Chat' : 'Connecting Realtime...'}
+          </span>
+        </div>
+
+        {/* Sender Persona Switcher (For real two-way testing without bots) */}
+        <div className="flex items-center gap-1 bg-warm-200/50 p-0.5 rounded-full border border-warm-300/40 text-[11px]">
+          <span className="text-[10px] font-bold text-slate-500 px-1.5 hidden sm:inline">
+            Chat as:
+          </span>
+          <button
+            type="button"
+            onClick={() => setActiveSender('me')}
+            className={`px-2.5 py-0.5 rounded-full font-bold transition-all ${
+              activeSender === 'me'
+                ? 'bg-coral-500 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+            title={`Send as You (${userPet?.name || 'Milo'})`}
+          >
+            🐾 You ({userPet?.name || 'Milo'})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveSender('them')}
+            className={`px-2.5 py-0.5 rounded-full font-bold transition-all ${
+              activeSender === 'them'
+                ? 'bg-slate-800 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+            title={`Send as ${match.petName} (${match.ownerName})`}
+          >
+            🐕 {match.petName} ({match.ownerName})
+          </button>
+        </div>
       </div>
 
       {/* Messages Feed */}
@@ -363,6 +545,16 @@ export default function ChatView({
               key={msg.id}
               className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}
             >
+              {!isMe && (
+                <span className="text-[10px] font-bold text-slate-500 mb-1 ml-1 flex items-center gap-1">
+                  <span>🐕</span> {msg.senderName || match.ownerName}
+                </span>
+              )}
+              {isMe && msg.senderName && msg.senderName !== 'You' && (
+                <span className="text-[10px] font-bold text-coral-600 mb-1 mr-1 flex items-center gap-1">
+                  <span>🐾</span> {msg.senderName}
+                </span>
+              )}
               <div
                 className={`max-w-[78%] px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-normal leading-relaxed shadow-xs ${
                   isMe
@@ -388,7 +580,7 @@ export default function ChatView({
               <span className="w-1.5 h-1.5 rounded-full bg-coral-500 animate-bounce [animation-delay:0.2s]" />
               <span className="w-1.5 h-1.5 rounded-full bg-coral-600 animate-bounce [animation-delay:0.4s]" />
               <span className="text-[11px] font-semibold text-slate-500 ml-1">
-                {match.ownerName} is typing...
+                {activeSender === 'me' ? match.ownerName : (userPet?.owner?.name || 'Arjun')} is typing...
               </span>
             </div>
           </div>
@@ -451,9 +643,13 @@ export default function ChatView({
 
         <input
           type="text"
-          placeholder={`Message ${match.ownerName} & ${match.petName}...`}
+          placeholder={
+            activeSender === 'me'
+              ? `Message ${match.ownerName} & ${match.petName}...`
+              : `Reply as ${match.ownerName} (${match.petName})...`
+          }
           value={inputVal}
-          onChange={(e) => setInputVal(e.target.value)}
+          onChange={handleInputChange}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
           className="flex-1 px-4 py-2.5 rounded-2xl bg-warm-50 border border-warm-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-coral-500/30"
         />
@@ -463,7 +659,9 @@ export default function ChatView({
           disabled={!inputVal.trim()}
           className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${
             inputVal.trim()
-              ? 'bg-coral-500 hover:bg-coral-600 text-white shadow-md shadow-coral-500/25 active:scale-95'
+              ? activeSender === 'me'
+                ? 'bg-coral-500 hover:bg-coral-600 text-white shadow-md shadow-coral-500/25 active:scale-95'
+                : 'bg-slate-900 hover:bg-slate-800 text-white shadow-md shadow-slate-900/25 active:scale-95'
               : 'bg-warm-100 text-slate-300 cursor-not-allowed'
           }`}
           aria-label="Send message"
