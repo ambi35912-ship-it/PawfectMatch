@@ -38,6 +38,7 @@ export default function ProfileView({
   onOpenDiscoverySettings,
   onOpenAddPet,
   onOpenEditProfile,
+  onOpenEditPet,
   onOpenNotificationSettings,
   currentUser = null,
   onOpenAuthModal,
@@ -116,7 +117,15 @@ export default function ProfileView({
               </label>
             </div>
 
-            <div className="text-right">
+            <div className="flex items-center gap-1.5 text-right">
+              <button
+                onClick={() => onOpenEditPet?.(userPet)}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-[10px] font-black shadow-xs transition-all active:scale-95"
+                title="Edit pet bio, stats, quirks & personality"
+              >
+                <Edit3 className="w-3 h-3 text-amber-400" />
+                <span>Edit Pet</span>
+              </button>
               <span className="text-[11px] font-bold text-coral-600 bg-coral-50 px-2.5 py-1 rounded-full border border-coral-200/80">
                 {userPet.weight} • {userPet.gender}
               </span>

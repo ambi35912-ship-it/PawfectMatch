@@ -14,7 +14,9 @@ import {
   CheckCheck,
   RefreshCw,
   Share2,
-  Info
+  Info,
+  Navigation,
+  X
 } from 'lucide-react';
 import RescheduleModal from './RescheduleModal';
 import PhotoAttachmentModal from './PhotoAttachmentModal';
@@ -25,7 +27,9 @@ export default function ChatView({
   onBack,
   onSchedulePlaydate,
   onViewParkDetails,
-  onAddToCalendar
+  onAddToCalendar,
+  onNavigate,
+  onUpdateMessages
 }) {
   const [messages, setMessages] = useState(match.messages || []);
   const [inputVal, setInputVal] = useState('');
@@ -36,6 +40,7 @@ export default function ChatView({
   // Modals inside chat
   const [rescheduleData, setRescheduleData] = useState(null);
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+  const [zoomedPhoto, setZoomedPhoto] = useState(null);
 
   const messagesEndRef = useRef(null);
 
@@ -46,6 +51,11 @@ export default function ChatView({
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping]);
+
+  // Persist messages to parent state
+  useEffect(() => {
+    onUpdateMessages?.(match.id, messages);
+  }, [messages, match.id, onUpdateMessages]);
 
   // Simulated Voice Note audio timer
   useEffect(() => {
@@ -263,7 +273,7 @@ export default function ChatView({
 
                   {/* Actions row */}
                   <div className="space-y-1.5 pt-2 border-t border-warm-100">
-                    <div className="flex items-center gap-2">
+                    <div className="grid grid-cols-3 gap-1.5">
                       <button
                         onClick={() => onViewParkDetails({
                           name: msg.location,
@@ -274,17 +284,31 @@ export default function ChatView({
                           partnerName: match.petName,
                           partnerOwner: match.ownerName
                         })}
-                        className="flex-1 py-2.5 text-center rounded-xl bg-warm-100 hover:bg-warm-200 text-slate-800 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs active:scale-95"
-                        title="View full playdate & venue details"
+                        className="py-2 text-center rounded-xl bg-warm-100 hover:bg-warm-200 text-slate-800 font-bold text-xs flex items-center justify-center gap-1 transition-colors active:scale-95"
+                        title="View park details"
                       >
                         <Info className="w-3.5 h-3.5 text-slate-600" />
-                        <span>More Info</span>
+                        <span>Info</span>
                       </button>
+
+                      <button
+                        onClick={() => onNavigate?.({
+                          name: msg.location,
+                          address: msg.address,
+                          distance: '0.9 mi away'
+                        })}
+                        className="py-2 text-center rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center gap-1 border border-emerald-200 transition-colors active:scale-95"
+                        title="Open interactive navigation map"
+                      >
+                        <Navigation className="w-3.5 h-3.5 text-emerald-600 fill-emerald-600" />
+                        <span>Map</span>
+                      </button>
+
                       <button
                         onClick={() => setRescheduleData(msg)}
-                        className="flex-1 py-2.5 text-center rounded-xl bg-coral-50 hover:bg-coral-100 text-coral-600 font-bold text-xs border border-coral-200/60 transition-colors active:scale-95"
+                        className="py-2 text-center rounded-xl bg-coral-50 hover:bg-coral-100 text-coral-600 font-bold text-xs border border-coral-200/60 transition-colors active:scale-95"
                       >
-                        Reschedule
+                        Change
                       </button>
                     </div>
 
@@ -292,11 +316,14 @@ export default function ChatView({
                       onClick={() => onAddToCalendar({
                         title: `Playdate: ${msg.title} with ${match.petName}`,
                         location: `${msg.location}, ${msg.address}`,
-                        description: `Pet playdate with ${match.petName} & ${match.ownerName} scheduled via Pawfect Match app.`
+                        description: `Pet playdate with ${match.petName} & ${match.ownerName} scheduled via Pawfect Match app.`,
+                        dateTime: msg.dateTime,
+                        partnerName: match.petName
                       })}
-                      className="w-full py-2 text-center rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-colors"
+                      className="w-full py-2.5 text-center rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
                     >
-                      Add to Calendar
+                      <Calendar className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Calendar Connector & Email Invite</span>
                     </button>
                   </div>
                 </div>
@@ -309,10 +336,13 @@ export default function ChatView({
             const isMe = msg.sender === 'me';
             return (
               <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                <div className={`max-w-[75%] rounded-3xl overflow-hidden border shadow-sm ${
-                  isMe ? 'bg-coral-500 text-white border-coral-400' : 'bg-white text-slate-800 border-warm-200'
-                }`}>
-                  <img src={msg.imageUrl} alt="attached" className="w-full h-44 object-cover" />
+                <div
+                  onClick={() => setZoomedPhoto(msg.imageUrl)}
+                  className={`max-w-[75%] rounded-3xl overflow-hidden border shadow-sm cursor-zoom-in group ${
+                    isMe ? 'bg-coral-500 text-white border-coral-400' : 'bg-white text-slate-800 border-warm-200'
+                  }`}
+                >
+                  <img src={msg.imageUrl} alt="attached" className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300" />
                   {msg.text && (
                     <div className="p-2.5 text-xs font-medium leading-relaxed">
                       {msg.text}
@@ -365,6 +395,25 @@ export default function ChatView({
         )}
 
         <div ref={messagesEndRef} />
+      </div>
+
+      {/* Quick Reply Suggestions */}
+      <div className="px-3 py-1.5 bg-warm-50/80 border-t border-warm-200/50 flex items-center gap-2 overflow-x-auto no-scrollbar">
+        {[
+          'See you at the park! 🐾',
+          'Are they good off-leash? 🐕',
+          'Favorite treats or toys? 🦴',
+          'Can we do 15 mins later? ⏰',
+          'Let’s grab a pup cup after! ☕'
+        ].map((chip, idx) => (
+          <button
+            key={idx}
+            onClick={() => handleSend(chip)}
+            className="whitespace-nowrap px-2.5 py-1 rounded-full bg-white border border-warm-200 text-[11px] font-medium text-slate-700 hover:border-coral-400 hover:bg-coral-50 hover:text-coral-600 transition-all shadow-2xs shrink-0"
+          >
+            {chip}
+          </button>
+        ))}
       </div>
 
       {/* Pet Quick Reaction Emojis Bar */}
@@ -437,6 +486,29 @@ export default function ChatView({
         onClose={() => setIsPhotoModalOpen(false)}
         onSendPhoto={handleSendPhoto}
       />
+
+      {/* Photo Lightbox / Zoom Modal */}
+      {zoomedPhoto && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setZoomedPhoto(null)}
+        >
+          <button
+            onClick={() => setZoomedPhoto(null)}
+            className="absolute top-4 right-4 p-2.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
+            title="Close photo"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <img
+            src={zoomedPhoto}
+            alt="Pet enlarged"
+            className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <p className="mt-3 text-white/80 text-xs font-medium">Click outside or press ✕ to close</p>
+        </div>
+      )}
 
     </div>
   );

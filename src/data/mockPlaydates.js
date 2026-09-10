@@ -12,7 +12,9 @@ export const initialPlaydates = [
     address: 'Jackson St & Pierce St, San Francisco',
     status: 'Confirmed',
     tags: ['Fenced Area', 'Water Available', 'Grass Turf'],
-    weather: '64°F • Sunny & Clear'
+    weather: '64°F • Sunny & Clear',
+    lat: 37.7915,
+    lng: -122.4372
   },
   {
     id: 'playdate_2',
@@ -27,7 +29,9 @@ export const initialPlaydates = [
     address: '1199 E Beach, Presidio, San Francisco',
     status: 'Pending RSVP',
     tags: ['Off-Leash Beach', 'Ocean Splash', 'Sandy Run'],
-    weather: '60°F • Breezy'
+    weather: '60°F • Breezy',
+    lat: 37.8048,
+    lng: -122.4510
   }
 ];
 
@@ -42,7 +46,9 @@ export const petFriendlySpots = [
     image: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=600&q=80',
     address: 'Jackson St & Scott St, Pacific Heights',
     amenities: ['Double Gated', 'Fresh Water Fountain', 'Benches', 'Breathtaking City Views'],
-    popularHours: 'Busiest 4:30 PM - 6:30 PM'
+    popularHours: 'Busiest 4:30 PM - 6:30 PM',
+    lat: 37.7915,
+    lng: -122.4372
   },
   {
     id: 'spot_2',
@@ -54,7 +60,9 @@ export const petFriendlySpots = [
     image: 'https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=600&q=80',
     address: 'Mason St, Presidio, San Francisco',
     amenities: ['Shallow Water Entry', 'Golden Gate Views', 'Dog Wash Station Nearby', 'Free Parking'],
-    popularHours: 'Weekends 10 AM - 2 PM'
+    popularHours: 'Weekends 10 AM - 2 PM',
+    lat: 37.8048,
+    lng: -122.4510
   },
   {
     id: 'spot_3',
@@ -66,7 +74,9 @@ export const petFriendlySpots = [
     image: 'https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?auto=format&fit=crop&w=600&q=80',
     address: 'Marina Blvd, San Francisco',
     amenities: ['Wide Grass Fields', 'Paved Paths', 'Yacht Harbor Walk', 'Dog Friendly Cafes Nearby'],
-    popularHours: 'Sunset hours 5 PM - 7 PM'
+    popularHours: 'Sunset hours 5 PM - 7 PM',
+    lat: 37.8055,
+    lng: -122.4378
   },
   {
     id: 'spot_4',
@@ -78,6 +88,8 @@ export const petFriendlySpots = [
     image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80',
     address: '2128 Folsom St, San Francisco',
     amenities: ['Lush Outdoor Courtyard', 'Complimentary Pup Cups', 'Organic Bakery', 'Water Bowls'],
-    popularHours: 'Brunch 9 AM - 1 PM'
+    popularHours: 'Brunch 9 AM - 1 PM',
+    lat: 37.7627,
+    lng: -122.4150
   }
 ];

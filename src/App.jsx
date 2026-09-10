@@ -9,6 +9,7 @@ import FilterModal from './components/common/FilterModal';
 import Toast from './components/common/Toast';
 import NavigationModal from './components/common/NavigationModal';
 import CallClinicModal from './components/common/CallClinicModal';
+import CalendarConnectorModal from './components/common/CalendarConnectorModal';
 
 import SwipeDeck from './components/discover/SwipeDeck';
 import PetDetailModal from './components/discover/PetDetailModal';
@@ -31,6 +32,7 @@ import UploadCertificateModal from './components/health/UploadCertificateModal';
 
 import ProfileView from './components/profile/ProfileView';
 import AddPetModal from './components/profile/AddPetModal';
+import EditPetModal from './components/profile/EditPetModal';
 import EditProfileModal from './components/profile/EditProfileModal';
 import NotificationSettingsModal from './components/profile/NotificationSettingsModal';
 import AuthModal from './components/auth/AuthModal';
@@ -76,8 +78,11 @@ export default function App() {
   const [isUploadCertOpen, setIsUploadCertOpen] = useState(false);
   const [certModalPet, setCertModalPet] = useState(null);
   const [isAddPetOpen, setIsAddPetOpen] = useState(false);
+  const [isEditPetOpen, setIsEditPetOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isNotificationSettingsOpen, setIsNotificationSettingsOpen] = useState(false);
+  const [isCalendarConnectorOpen, setIsCalendarConnectorOpen] = useState(false);
+  const [calendarConnectorEvent, setCalendarConnectorEvent] = useState(null);
 
   // Supabase Auth State
   const [currentUser, setCurrentUser] = useState(null);
@@ -292,10 +297,47 @@ export default function App() {
     setActiveTab('playdates');
   };
 
-  // Add To Calendar Action
+  // Open Calendar Connector Modal (Google, Apple, Outlook & Email)
+  const handleOpenCalendarConnector = (event) => {
+    setCalendarConnectorEvent(event);
+    setIsCalendarConnectorOpen(true);
+  };
+
+  // Add To Calendar Action (Directly triggers Connector Modal with Email and Providers)
   const handleAddToCalendar = ({ title, location, description, startDate, endDate }) => {
-    downloadCalendarEvent({ title, location, description, startDate, endDate });
-    showToast('Event Synced to Calendar', `Downloaded .ics event for: ${title}`, 'success');
+    setCalendarConnectorEvent({ title, location, description, startDate, endDate });
+    setIsCalendarConnectorOpen(true);
+  };
+
+  // Synchronize and persist match messages
+  const handleUpdateMatchMessages = (matchId, updatedMessages) => {
+    setMatches((prev) =>
+      prev.map((m) =>
+        m.id === matchId
+          ? {
+              ...m,
+              messages: updatedMessages,
+              lastMessage: updatedMessages[updatedMessages.length - 1]?.text || m.lastMessage
+            }
+          : m
+      )
+    );
+    if (selectedConversation && selectedConversation.id === matchId) {
+      setSelectedConversation((prev) => ({
+        ...prev,
+        messages: updatedMessages,
+        lastMessage: updatedMessages[updatedMessages.length - 1]?.text || prev.lastMessage
+      }));
+    }
+  };
+
+  // Edit Active Pet Profile
+  const handleEditPet = (updatedPet) => {
+    setActiveUserPet(updatedPet);
+    setUserPets((prev) =>
+      prev.map((p) => (p.id === updatedPet.id ? updatedPet : p))
+    );
+    showToast('Pet Profile Updated! ✨', `${updatedPet.name}'s bio & traits saved`, 'sparkles');
   };
 
   // Turn-by-turn navigation
@@ -573,6 +615,8 @@ export default function App() {
               onSchedulePlaydate={(match) => handleOpenSchedule(match)}
               onViewParkDetails={handleViewSpotDetails}
               onAddToCalendar={handleAddToCalendar}
+              onNavigate={handleNavigate}
+              onUpdateMessages={handleUpdateMatchMessages}
             />
           ) : (
             <MatchesList
@@ -620,6 +664,7 @@ export default function App() {
             setIsDeviceFrame={setIsDeviceFrame}
             onOpenDiscoverySettings={() => setIsFilterOpen(true)}
             onOpenAddPet={() => setIsAddPetOpen(true)}
+            onOpenEditPet={() => setIsEditPetOpen(true)}
             onOpenEditProfile={() => setIsEditProfileOpen(true)}
             onOpenNotificationSettings={() => setIsNotificationSettingsOpen(true)}
             currentUser={currentUser}
@@ -805,6 +850,24 @@ export default function App() {
         }}
         pet={certModalPet || activeUserPet}
         onSaveCertificate={handleSaveCertificate}
+      />
+
+      {/* Calendar Connector & Email Invite Modal */}
+      <CalendarConnectorModal
+        isOpen={isCalendarConnectorOpen}
+        onClose={() => {
+          setIsCalendarConnectorOpen(false);
+          setCalendarConnectorEvent(null);
+        }}
+        event={calendarConnectorEvent}
+      />
+
+      {/* Edit Pet Profile Modal */}
+      <EditPetModal
+        isOpen={isEditPetOpen}
+        onClose={() => setIsEditPetOpen(false)}
+        pet={activeUserPet}
+        onSavePet={handleEditPet}
       />
 
     </DeviceFrame>

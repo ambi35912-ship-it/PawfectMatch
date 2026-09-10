@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, MapPin, Plus, Star, CheckCircle, Navigation, ShieldCheck, Sun, Info } from 'lucide-react';
+import { Calendar, Clock, MapPin, Plus, Star, CheckCircle, Navigation, ShieldCheck, Sun, Info, Map as MapIcon } from 'lucide-react';
+import InteractiveMap from '../common/InteractiveMap';
 
 export default function PlaydatesView({
   playdates,
@@ -9,7 +10,8 @@ export default function PlaydatesView({
   onNavigate,
   onViewSpotDetails
 }) {
-  const [activeTab, setActiveTab] = useState('upcoming'); // 'upcoming' | 'spots'
+  const [activeTab, setActiveTab] = useState('upcoming'); // 'upcoming' | 'spots' | 'map'
+  const [selectedMapSpot, setSelectedMapSpot] = useState(spots?.[0] || null);
 
   return (
     <div className="flex-1 min-h-0 flex flex-col p-4 max-w-md mx-auto w-full overflow-y-auto no-scrollbar pb-24">
@@ -54,7 +56,18 @@ export default function PlaydatesView({
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          Pet-Friendly Spots ({spots.length})
+          Parks ({spots.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('map')}
+          className={`flex-1 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition-all ${
+            activeTab === 'map'
+              ? 'bg-white text-coral-600 shadow-sm'
+              : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <MapIcon className="w-3.5 h-3.5" />
+          <span>Map View</span>
         </button>
       </div>
 
@@ -157,7 +170,7 @@ export default function PlaydatesView({
             </div>
           ))}
         </div>
-      ) : (
+      ) : activeTab === 'spots' ? (
         /* Spots tab */
         <div className="space-y-4">
           {spots.map((spot) => (
@@ -233,6 +246,92 @@ export default function PlaydatesView({
               </div>
             </div>
           ))}
+        </div>
+      ) : (
+        /* Interactive Map View Tab */
+        <div className="space-y-3 animate-in fade-in duration-200">
+          {/* Active spot card banner */}
+          {selectedMapSpot && (
+            <div className="p-3 bg-white rounded-2xl border border-warm-200/80 shadow-xs flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <img
+                  src={selectedMapSpot.image}
+                  alt={selectedMapSpot.name}
+                  className="w-10 h-10 rounded-xl object-cover ring-1 ring-warm-200 shrink-0"
+                />
+                <div className="min-w-0">
+                  <h4 className="text-xs font-black text-slate-900 truncate">
+                    {selectedMapSpot.name}
+                  </h4>
+                  <p className="text-[11px] text-slate-500 truncate">
+                    {selectedMapSpot.address}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => onSelectSpot(selectedMapSpot)}
+                className="px-2.5 py-1.5 rounded-xl bg-coral-500 hover:bg-coral-600 text-white text-xs font-bold shrink-0 transition-colors shadow-xs flex items-center gap-1"
+              >
+                <Calendar className="w-3 h-3" />
+                <span>Plan Here</span>
+              </button>
+            </div>
+          )}
+
+          {/* Interactive Map Component */}
+          <div className="bg-white rounded-3xl border border-warm-200/80 overflow-hidden shadow-card p-3">
+            <InteractiveMap
+              destination={selectedMapSpot || spots[0]}
+            />
+          </div>
+
+          {/* Park Selector Ribbon */}
+          <div className="pt-2">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-extrabold text-slate-900">
+                Select Park to Navigate
+              </span>
+              <span className="text-[11px] text-slate-400 font-medium">
+                {spots.length} nearby locations
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {spots.map((spot) => {
+                const isSelected = selectedMapSpot?.id === spot.id;
+                return (
+                  <button
+                    key={spot.id}
+                    onClick={() => setSelectedMapSpot(spot)}
+                    className={`p-2.5 rounded-2xl border text-left transition-all flex flex-col justify-between h-28 ${
+                      isSelected
+                        ? 'border-coral-500 bg-coral-50/50 ring-2 ring-coral-500/20 shadow-xs'
+                        : 'border-warm-200/80 bg-white hover:border-warm-300'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-1 w-full">
+                      <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-md ${
+                        isSelected ? 'bg-coral-500 text-white' : 'bg-warm-100 text-slate-600'
+                      }`}>
+                        {spot.distance}
+                      </span>
+                      <span className="flex items-center text-[10px] font-bold text-amber-600">
+                        ★ {spot.rating}
+                      </span>
+                    </div>
+
+                    <div>
+                      <div className="font-extrabold text-xs text-slate-900 truncate">
+                        {spot.name}
+                      </div>
+                      <div className="text-[10px] text-slate-500 truncate mt-0.5">
+                        {spot.type}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
 
