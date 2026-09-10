@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import confetti from 'canvas-confetti';
 import { downloadCalendarEvent } from './utils/calendar';
 
@@ -310,7 +310,7 @@ export default function App() {
   };
 
   // Synchronize and persist match messages
-  const handleUpdateMatchMessages = (matchId, updatedMessages) => {
+  const handleUpdateMatchMessages = useCallback((matchId, updatedMessages) => {
     setMatches((prev) =>
       prev.map((m) =>
         m.id === matchId
@@ -322,14 +322,39 @@ export default function App() {
           : m
       )
     );
-    if (selectedConversation && selectedConversation.id === matchId) {
-      setSelectedConversation((prev) => ({
+    setSelectedConversation((prev) => {
+      if (!prev || prev.id !== matchId) return prev;
+      return {
         ...prev,
         messages: updatedMessages,
         lastMessage: updatedMessages[updatedMessages.length - 1]?.text || prev.lastMessage
-      }));
+      };
+    });
+  }, []);
+
+  // Open Chat Conversation
+  const handleOpenConversation = useCallback((match) => {
+    setSelectedConversation(match);
+    try {
+      window.history.pushState({ inChat: true, matchId: match.id }, '');
+    } catch (e) {
+      // Ignore in environments without window.history
     }
-  };
+  }, []);
+
+  // Close Chat Conversation & return cleanly to matches list
+  const handleCloseConversation = useCallback(() => {
+    setSelectedConversation(null);
+  }, []);
+
+  // Native browser / phone back gesture support to exit chat cleanly
+  useEffect(() => {
+    const handlePopState = () => {
+      setSelectedConversation(null);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Edit Active Pet Profile
   const handleEditPet = (updatedPet) => {
@@ -611,7 +636,7 @@ export default function App() {
             <ChatView
               match={selectedConversation}
               userPet={activeUserPet}
-              onBack={() => setSelectedConversation(null)}
+              onBack={handleCloseConversation}
               onSchedulePlaydate={(match) => handleOpenSchedule(match)}
               onViewParkDetails={handleViewSpotDetails}
               onAddToCalendar={handleAddToCalendar}
@@ -621,8 +646,8 @@ export default function App() {
           ) : (
             <MatchesList
               matches={matches}
-              onSelectConversation={(match) => setSelectedConversation(match)}
-              onSelectNewMatch={(match) => setSelectedConversation(match)}
+              onSelectConversation={handleOpenConversation}
+              onSelectNewMatch={handleOpenConversation}
             />
           )
         )}
@@ -681,9 +706,13 @@ export default function App() {
       <BottomNav
         activeTab={activeTab}
         setActiveTab={(tab) => {
-          setActiveTab(tab);
-          if (tab !== 'matches') {
-            setSelectedConversation(null);
+          if (tab === 'matches' && selectedConversation) {
+            handleCloseConversation();
+          } else {
+            setActiveTab(tab);
+            if (tab !== 'matches') {
+              handleCloseConversation();
+            }
           }
         }}
         unreadCount={matches.filter((m) => m.unread).length}

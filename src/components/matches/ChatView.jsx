@@ -62,10 +62,15 @@ export default function ChatView({
     scrollToBottom();
   }, [messages, isTyping]);
 
-  // Persist messages to parent state
+  // Persist messages to parent state only when messages change after initial mount
+  const isFirstMountRef = useRef(true);
   useEffect(() => {
+    if (isFirstMountRef.current) {
+      isFirstMountRef.current = false;
+      return;
+    }
     onUpdateMessages?.(match.id, messages);
-  }, [messages, match.id, onUpdateMessages]);
+  }, [messages, match.id]);
 
   // Supabase Realtime Broadcast Channel for live user-to-user chatting
   useEffect(() => {
@@ -274,10 +279,18 @@ export default function ChatView({
       <div className="px-4 py-2.5 bg-white/95 backdrop-blur-md border-b border-warm-200/80 flex items-center justify-between z-20 shrink-0">
         <div className="flex items-center gap-2">
           <button
-            onClick={onBack}
-            className="w-8 h-8 rounded-full bg-warm-100 hover:bg-warm-200 flex items-center justify-center text-slate-700 transition-colors"
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onBack?.();
+            }}
+            className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-warm-100 hover:bg-coral-50 hover:text-coral-600 active:scale-95 text-slate-700 font-bold text-xs transition-all shadow-2xs shrink-0 cursor-pointer"
+            aria-label="Back to matches list"
+            title="Back to matches list"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
+            <span>Back</span>
           </button>
 
           {/* Profile header info */}
