@@ -29,8 +29,8 @@ export default function DeviceFrame({ isDeviceFrame, children }) {
   // When on an actual mobile device/screen or user toggled to Full view on computer:
   if (!isDeviceFrame || isMobileScreen) {
     return (
-      <div className="min-h-screen bg-stone-900 flex items-center justify-center sm:p-0">
-        <div className="w-full max-w-[420px] h-screen max-h-screen bg-warm-50 flex flex-col shadow-2xl relative overflow-hidden">
+      <div className="min-h-screen bg-stone-950 flex items-center justify-center p-0">
+        <div className="w-full max-w-full sm:max-w-[440px] md:max-w-[460px] h-screen max-h-screen bg-warm-50 flex flex-col shadow-2xl relative overflow-hidden">
           {children}
         </div>
       </div>
@@ -39,9 +39,9 @@ export default function DeviceFrame({ isDeviceFrame, children }) {
 
   // Desktop iPhone 16 Pro Mockup Frame
   return (
-    <div className="min-h-screen py-6 px-4 bg-gradient-to-br from-stone-900 via-slate-900 to-stone-950 flex items-center justify-center">
+    <div className="min-h-screen py-4 px-3 bg-gradient-to-br from-stone-900 via-slate-900 to-stone-950 flex items-center justify-center">
       {/* Outer Phone Shell */}
-      <div className="relative w-full max-w-[420px] h-[890px] rounded-[52px] bg-slate-950 p-3 shadow-[0_30px_100px_rgba(0,0,0,0.6)] border-[5px] border-slate-800/80 ring-1 ring-white/15 flex flex-col">
+      <div className="relative w-full max-w-[430px] h-[915px] rounded-[52px] bg-slate-950 p-2.5 shadow-[0_30px_100px_rgba(0,0,0,0.6)] border-[5px] border-slate-800/80 ring-1 ring-white/15 flex flex-col">
         
         {/* Antenna bands & buttons simulation */}
         <div className="absolute -left-[9px] top-[140px] w-[4px] h-[40px] bg-slate-700 rounded-l-md" />

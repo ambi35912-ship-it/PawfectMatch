@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
 import PetCard from './PetCard';
 import ActionButtons from './ActionButtons';
-import { Sparkles, RefreshCw, Dog } from 'lucide-react';
+import { RefreshCw, Dog } from 'lucide-react';
 
 export default function SwipeDeck({
   pets,
@@ -17,45 +17,46 @@ export default function SwipeDeck({
   const [exitDirection, setExitDirection] = useState(null);
 
   const x = useMotionValue(0);
-  const rotate = useTransform(x, [-250, 0, 250], [-18, 0, 18]);
+  const y = useMotionValue(0);
+
+  // Smooth dynamic rotation based on horizontal displacement (-24deg to 24deg)
+  const rotate = useTransform(x, [-280, 0, 280], [-22, 0, 22]);
+
+  // Dynamic Tinder Stamp Opacities and Scales
+  const likeOpacity = useTransform(x, [20, 95], [0, 1]);
+  const likeScale = useTransform(x, [20, 110], [0.8, 1.05]);
+
+  const nopeOpacity = useTransform(x, [-20, -95], [0, 1]);
+  const nopeScale = useTransform(x, [-20, -110], [0.8, 1.05]);
+
+  const superLikeOpacity = useTransform(y, [-20, -95], [0, 1]);
+  const superLikeScale = useTransform(y, [-20, -110], [0.8, 1.05]);
+
+  // Card behind dynamically scales up and brightens as front card moves away
+  const nextCardScale = useTransform(x, [-220, 0, 220], [0.985, 0.94, 0.985]);
+  const nextCardOpacity = useTransform(x, [-220, 0, 220], [0.95, 0.78, 0.95]);
+  const nextCardY = useTransform(x, [-220, 0, 220], [2, 10, 2]);
 
   const activePet = pets[currentIndex];
   const nextPet = pets[currentIndex + 1];
   const thirdPet = pets[currentIndex + 2];
 
-  // Dynamic stamp opacity update during drag
-  const handleDrag = (_, info) => {
-    const dragDistance = info.offset.x;
-    const likeEl = document.getElementById('stamp-like');
-    const passEl = document.getElementById('stamp-pass');
-
-    if (likeEl && passEl) {
-      if (dragDistance > 20) {
-        likeEl.style.opacity = String(Math.min(dragDistance / 100, 1));
-        passEl.style.opacity = '0';
-      } else if (dragDistance < -20) {
-        passEl.style.opacity = String(Math.min(Math.abs(dragDistance) / 100, 1));
-        likeEl.style.opacity = '0';
-      } else {
-        likeEl.style.opacity = '0';
-        passEl.style.opacity = '0';
-      }
-    }
-  };
-
   const handleDragEnd = (_, info) => {
-    const likeEl = document.getElementById('stamp-like');
-    const passEl = document.getElementById('stamp-pass');
-    if (likeEl) likeEl.style.opacity = '0';
-    if (passEl) passEl.style.opacity = '0';
+    const thresholdX = 85;
+    const velocityX = info.velocity.x;
+    const thresholdY = -90;
+    const velocityY = info.velocity.y;
 
-    const threshold = 100;
-    const velocityThreshold = 400;
-
-    if (info.offset.x > threshold || info.velocity.x > velocityThreshold) {
+    if (info.offset.x > thresholdX || velocityX > 320) {
       triggerSwipe('right');
-    } else if (info.offset.x < -threshold || info.velocity.x < -velocityThreshold) {
+    } else if (info.offset.x < -thresholdX || velocityX < -320) {
       triggerSwipe('left');
+    } else if (info.offset.y < thresholdY || velocityY < -350) {
+      triggerSwipe('up');
+    } else {
+      // Snap back smoothly to center
+      x.set(0);
+      y.set(0);
     }
   };
 
@@ -75,12 +76,12 @@ export default function SwipeDeck({
       setCurrentIndex((prev) => prev + 1);
       setExitDirection(null);
       x.set(0);
-    }, 200);
+      y.set(0);
+    }, 220);
   };
 
   const handleRewind = () => {
     if (history.length === 0 || currentIndex === 0) return;
-    const lastAction = history[history.length - 1];
     setHistory((prev) => prev.slice(0, -1));
     setCurrentIndex((prev) => Math.max(0, prev - 1));
   };
@@ -88,10 +89,10 @@ export default function SwipeDeck({
   const isDeckEmpty = currentIndex >= pets.length;
 
   return (
-    <div className="flex-1 flex flex-col justify-between p-3 sm:p-4 max-w-md mx-auto w-full relative overflow-hidden min-h-0">
+    <div className="flex-1 flex flex-col justify-between px-2.5 sm:px-3 pt-1 pb-2 w-full max-w-lg mx-auto relative overflow-hidden min-h-0">
       
-      {/* Card Stack Viewport */}
-      <div className="relative flex-1 w-full h-[510px] sm:h-[550px] min-h-[460px] max-h-[580px] flex items-center justify-center my-auto">
+      {/* Full-Screen Card Stack Viewport */}
+      <div className="relative flex-1 w-full min-h-0 flex items-center justify-center my-1">
         
         {/* Empty State */}
         {isDeckEmpty ? (
@@ -111,7 +112,7 @@ export default function SwipeDeck({
                 setHistory([]);
                 onResetDeck?.();
               }}
-              className="mt-6 flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-coral-500 hover:bg-coral-600 text-white font-bold text-xs shadow-lg shadow-coral-500/25 transition-all active:scale-95"
+              className="mt-6 flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-coral-500 hover:bg-coral-600 text-white font-bold text-xs shadow-lg shadow-coral-500/25 transition-all active:scale-95 cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               Reset Pet Stack
@@ -125,58 +126,65 @@ export default function SwipeDeck({
               <div
                 className="absolute inset-0 pointer-events-none transition-all duration-300"
                 style={{
-                  transform: 'scale(0.91) translateY(24px)',
+                  transform: 'scale(0.90) translateY(20px)',
                   zIndex: 1,
-                  opacity: 0.5,
+                  opacity: 0.45,
                 }}
               >
                 <PetCard pet={thirdPet} isTopCard={false} onOpenDetails={onOpenDetails} />
               </div>
             )}
 
-            {/* 2nd Card in Stack (Middle) */}
+            {/* 2nd Card in Stack (Middle with dynamic scaling) */}
             {nextPet && (
-              <div
-                className="absolute inset-0 pointer-events-none transition-all duration-300"
+              <motion.div
+                className="absolute inset-0 pointer-events-none"
                 style={{
-                  transform: 'scale(0.955) translateY(12px)',
+                  scale: nextCardScale,
+                  opacity: nextCardOpacity,
+                  y: nextCardY,
                   zIndex: 2,
-                  opacity: 0.85,
                 }}
               >
                 <PetCard pet={nextPet} isTopCard={false} onOpenDetails={onOpenDetails} />
-              </div>
+              </motion.div>
             )}
 
-            {/* Active Front Card (Top with Draggable Physics) */}
+            {/* Active Front Card (Top with Draggable Physics & Dynamic Stamps) */}
             {activePet && (
               <motion.div
-                className="absolute inset-0 z-10 cursor-grab active:cursor-grabbing touch-none"
+                className="absolute inset-0 z-10 cursor-grab active:cursor-grabbing touch-none select-none"
                 style={{
                   x,
+                  y,
                   rotate,
                   zIndex: 10,
                 }}
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.7}
-                onDrag={handleDrag}
+                drag
+                dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+                dragElastic={0.85}
                 onDragEnd={handleDragEnd}
                 animate={
                   exitDirection === 'right'
-                    ? { x: 500, rotate: 25, opacity: 0 }
+                    ? { x: 750, rotate: 30, opacity: 0 }
                     : exitDirection === 'left'
-                    ? { x: -500, rotate: -25, opacity: 0 }
+                    ? { x: -750, rotate: -30, opacity: 0 }
                     : exitDirection === 'up'
-                    ? { y: -500, opacity: 0 }
+                    ? { y: -750, opacity: 0 }
                     : { x: 0, y: 0, rotate: 0, opacity: 1 }
                 }
-                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                transition={{ type: 'spring', damping: 26, stiffness: 280 }}
               >
                 <PetCard
                   pet={activePet}
                   isTopCard={true}
                   onOpenDetails={onOpenDetails}
+                  likeOpacity={likeOpacity}
+                  likeScale={likeScale}
+                  nopeOpacity={nopeOpacity}
+                  nopeScale={nopeScale}
+                  superLikeOpacity={superLikeOpacity}
+                  superLikeScale={superLikeScale}
                 />
               </motion.div>
             )}
@@ -186,8 +194,8 @@ export default function SwipeDeck({
 
       </div>
 
-      {/* Action Buttons Bar */}
-      <div className="mt-2 shrink-0">
+      {/* Tinder Action Buttons Bar */}
+      <div className="shrink-0 py-0.5">
         <ActionButtons
           onPass={() => triggerSwipe('left')}
           onLike={() => triggerSwipe('right')}
