@@ -10,8 +10,6 @@ export default function ScheduleModal({
   preselectedSpot,
   onSavePlaydate
 }) {
-  if (!isOpen) return null;
-
   const [selectedPetId, setSelectedPetId] = useState(
     preselectedPet ? preselectedPet.id || preselectedPet.petId : (matches[0]?.id || '')
   );
@@ -22,6 +20,8 @@ export default function ScheduleModal({
   const [selectedTime, setSelectedTime] = useState('10:00 AM - 11:30 AM');
   const [playStyle, setPlayStyle] = useState('High-Energy Fetch & Zoomies');
   const [customNote, setCustomNote] = useState('');
+
+  if (!isOpen) return null;
 
   const targetPet = matches.find((m) => (m.id === selectedPetId || m.petId === selectedPetId)) || matches[0];
   const targetSpot = spots.find((s) => s.id === selectedSpotId) || spots[0];

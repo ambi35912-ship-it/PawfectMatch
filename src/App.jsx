@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import { downloadCalendarEvent } from './utils/calendar';
 
@@ -39,6 +39,7 @@ import AuthModal from './components/auth/AuthModal';
 
 import { supabase } from './lib/supabaseClient';
 import { signOutUser } from './lib/authService';
+import { loadAppState, saveAppState } from './lib/appStateService';
 
 import { mockPets as initialPets } from './data/mockPets';
 import { initialMatches } from './data/mockMatches';
@@ -88,6 +89,7 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentSession, setCurrentSession] = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const persistenceReadyRef = useRef(false);
 
   // Toast System
   const [toast, setToast] = useState(null);
@@ -153,6 +155,59 @@ export default function App() {
       subscription?.unsubscribe?.();
     };
   }, []);
+
+  // Load the signed-in user's RLS-protected snapshot, with local storage as a
+  // guest/offline fallback. Reset first so one account never sees another's data.
+  useEffect(() => {
+    let cancelled = false;
+    persistenceReadyRef.current = false;
+
+    const hydrate = async () => {
+      const userId = currentUser?.id || null;
+      const { state } = await loadAppState(userId);
+      if (cancelled) return;
+
+      const nextPets = state?.pets || initialPets;
+      const nextMatches = state?.matches || initialMatches;
+      const nextPlaydates = state?.playdates || initialPlaydates;
+      const nextUserPets = state?.userPets?.length ? state.userPets : [defaultUserPet, secondaryPet];
+      const nextActivePet = nextUserPets.find((pet) => pet.id === state?.activeUserPetId) || nextUserPets[0];
+
+      setPets(nextPets);
+      setMatches(nextMatches);
+      setPlaydates(nextPlaydates);
+      setUserPets(nextUserPets);
+      setActiveUserPet(nextActivePet);
+      persistenceReadyRef.current = true;
+    };
+
+    hydrate();
+    return () => {
+      cancelled = true;
+    };
+  }, [currentUser?.id]);
+
+  // Debounce persistence so rapid UI interactions do not flood Supabase.
+  useEffect(() => {
+    if (!persistenceReadyRef.current) return undefined;
+
+    const timeout = window.setTimeout(() => {
+      const snapshot = {
+        version: 1,
+        pets,
+        matches,
+        playdates,
+        userPets,
+        activeUserPetId: activeUserPet?.id || null
+      };
+
+      saveAppState(currentUser?.id || null, snapshot).catch(() => {
+        showToast('Saved locally', 'Cloud sync is unavailable; your changes remain on this device.', 'info');
+      });
+    }, 500);
+
+    return () => window.clearTimeout(timeout);
+  }, [pets, matches, playdates, userPets, activeUserPet?.id, currentUser?.id]);
 
   const handleSignOut = async () => {
     const res = await signOutUser();
@@ -486,9 +541,10 @@ export default function App() {
       if (prev.id === targetPetId) {
         return {
           ...prev,
-          health: {
-            ...prev.health,
-            vaccineCertificate: certData
+            health: {
+              ...prev.health,
+              status: certData.verified ? 'Verified' : 'Pending Review',
+              vaccineCertificate: certData
           }
         };
       }
@@ -501,13 +557,14 @@ export default function App() {
               ...p,
               health: {
                 ...p.health,
+                status: certData.verified ? 'Verified' : 'Pending Review',
                 vaccineCertificate: certData
               }
             }
           : p
       )
     );
-    showToast('Certificate Verified 🛡️', `Health confirmation saved for ${certModalPet?.name || activeUserPet.name}`, 'sparkles');
+    showToast('Certificate submitted', `Review is pending for ${certModalPet?.name || activeUserPet.name}`, 'info');
   };
 
   // Health: Log Weight
@@ -636,6 +693,7 @@ export default function App() {
             <ChatView
               match={selectedConversation}
               userPet={activeUserPet}
+              isAuthenticated={!!currentUser}
               onBack={handleCloseConversation}
               onSchedulePlaydate={(match) => handleOpenSchedule(match)}
               onViewParkDetails={handleViewSpotDetails}
@@ -829,6 +887,7 @@ export default function App() {
         isOpen={isAddPetOpen}
         onClose={() => setIsAddPetOpen(false)}
         onAddPet={handleAddPet}
+        currentUserId={currentUser?.id}
       />
 
       {/* Edit Profile Modal */}
@@ -879,6 +938,7 @@ export default function App() {
         }}
         pet={certModalPet || activeUserPet}
         onSaveCertificate={handleSaveCertificate}
+        currentUserId={currentUser?.id}
       />
 
       {/* Calendar Connector & Email Invite Modal */}

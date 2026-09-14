@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { X, Bell, Check, Sparkles, Calendar, MessageCircle, Pill } from 'lucide-react';
 
 export default function NotificationSettingsModal({ isOpen, onClose, onSave }) {
-  if (!isOpen) return null;
-
   const [settings, setSettings] = useState({
     matches: true,
     playdates: true,
@@ -11,6 +9,8 @@ export default function NotificationSettingsModal({ isOpen, onClose, onSave }) {
     medications: true,
     healthAlerts: false
   });
+
+  if (!isOpen) return null;
 
   const toggle = (key) => {
     setSettings((prev) => ({ ...prev, [key]: !prev[key] }));

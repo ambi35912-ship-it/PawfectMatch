@@ -17,8 +17,6 @@ import {
 import { signInWithEmail, signUpWithEmail, sendPasswordReset } from '../../lib/authService';
 
 export default function AuthModal({ isOpen, onClose, onAuthSuccess, onGuestContinue }) {
-  if (!isOpen) return null;
-
   const [mode, setMode] = useState('signin'); // 'signin' | 'signup' | 'forgot'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,6 +27,8 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, onGuestConti
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+
+  if (!isOpen) return null;
 
   const resetForm = () => {
     setErrorMessage('');

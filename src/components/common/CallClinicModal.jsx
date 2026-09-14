@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { X, Phone, PhoneCall, PhoneOff, Mic, MicOff, Volume2, Clock, MapPin, CheckCircle2 } from 'lucide-react';
 
 export default function CallClinicModal({ isOpen, onClose, appointment }) {
-  if (!isOpen) return null;
-
   const [isCalling, setIsCalling] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
@@ -20,6 +18,8 @@ export default function CallClinicModal({ isOpen, onClose, appointment }) {
     }
     return () => clearInterval(timer);
   }, [isCalling]);
+
+  if (!isOpen) return null;
 
   const formatCallTime = (seconds) => {
     const mins = Math.floor(seconds / 60);

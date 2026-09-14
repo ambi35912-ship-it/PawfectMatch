@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { X, Calendar, Clock, MapPin, Check } from 'lucide-react';
 
 export default function RescheduleModal({ isOpen, onClose, playdate, onConfirmReschedule }) {
-  if (!isOpen || !playdate) return null;
-
   const [date, setDate] = useState('Sunday, Mar 15');
   const [time, setTime] = useState('11:00 AM - 12:30 PM');
+
+  if (!isOpen || !playdate) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();

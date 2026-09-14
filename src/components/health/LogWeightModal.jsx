@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { X, Scale, Sparkles } from 'lucide-react';
 
 export default function LogWeightModal({ isOpen, onClose, onSaveWeight, currentWeight }) {
-  if (!isOpen) return null;
-
   const [weightVal, setWeightVal] = useState(parseFloat(currentWeight) || 68.0);
   const [monthName, setMonthName] = useState('Apr');
+
+  if (!isOpen) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();

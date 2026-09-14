@@ -1,45 +1,18 @@
-export const getGroqApiKey = () => {
-  try {
-    if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GROQ_API_KEY) {
-      return import.meta.env.VITE_GROQ_API_KEY;
-    }
-  } catch (e) {}
-  return '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';
-};
-
 /**
- * Fast Cloud AI Chat completion powered by Groq
- * @param {Array} messages - Array of { role: 'system'|'user'|'assistant', content: string }
- * @param {string} model - e.g. 'llama-3.3-70b-versatile' or 'llama-3.1-8b-instant'
+ * Calls the same-origin server endpoint so provider credentials never reach the
+ * browser bundle. Configure GROQ_API_KEY in the deployment environment.
  */
-export async function queryGroqChat({ messages, model = 'qwen/qwen3.6-27b', temperature = 0.7 }) {
-  const apiKey = getGroqApiKey();
-  if (!apiKey) {
-    throw new Error('Groq API key not found');
-  }
-
-  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+export async function queryGroqChat({ messages, model = 'llama-3.3-70b-versatile', temperature = 0.7 }) {
+  const response = await fetch('/api/groq-chat', {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      model,
-      messages,
-      temperature,
-      max_tokens: 800
-    })
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages, model, temperature })
   });
 
+  const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Groq API error (${response.status}): ${errorText}`);
+    throw new Error(data.error || `AI service error (${response.status})`);
   }
 
-  const data = await response.json();
-  let content = data.choices?.[0]?.message?.content || '';
-  // Strip reasoning <think> blocks if present
-  content = content.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-  return content;
+  return data.content || '';
 }
