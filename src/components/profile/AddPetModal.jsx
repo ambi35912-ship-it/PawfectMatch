@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { X, Sparkles, Dog, Cat, Camera, Check, ShieldCheck, UploadCloud, FileText, CheckCircle2, AlertCircle, ScanLine } from 'lucide-react';
-import { scanVeterinaryDocument } from '../../utils/ocrScanner';
+import { prepareVeterinaryDocument } from '../../utils/documentIntake';
+import { uploadVeterinaryDocument } from '../../lib/documentStorage';
 
-export default function AddPetModal({ isOpen, onClose, onAddPet }) {
-  if (!isOpen) return null;
-
+export default function AddPetModal({ isOpen, onClose, onAddPet, currentUserId }) {
   const [species, setSpecies] = useState('Dog');
   const [name, setName] = useState('');
   const [breed, setBreed] = useState('');
@@ -16,16 +15,19 @@ export default function AddPetModal({ isOpen, onClose, onAddPet }) {
   const [avatarIndex, setAvatarIndex] = useState(0);
   const [customAvatar, setCustomAvatar] = useState(null);
 
-  // Mandatory Vaccine Certificate & OCR State
+  // Mandatory vaccine document intake state
   const [certFile, setCertFile] = useState(null);
   const [certPreview, setCertPreview] = useState(null);
-  const [clinicName, setClinicName] = useState('Bay Area Pet Hospital');
-  const [certExpiry, setCertExpiry] = useState('2028-10-14');
+  const [clinicName, setClinicName] = useState('');
+  const [certExpiry, setCertExpiry] = useState('');
   const [formError, setFormError] = useState('');
 
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(null);
   const [ocrResult, setOcrResult] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (!isOpen) return null;
 
   const presetPhotos = [
     'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=400&q=80', // Frenchie
@@ -52,28 +54,32 @@ export default function AddPetModal({ isOpen, onClose, onAddPet }) {
       setFormError('');
       setCertFile(file);
       setOcrResult(null);
-      const reader = new FileReader();
-      reader.onload = () => setCertPreview(reader.result);
-      reader.readAsDataURL(file);
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = () => setCertPreview(reader.result);
+        reader.readAsDataURL(file);
+      } else {
+        setCertPreview(null);
+      }
 
-      // Trigger OCR Scan
+      // Validate and fingerprint the file; do not fabricate medical verification.
       setIsScanning(true);
       try {
-        const res = await scanVeterinaryDocument(file, (prog) => {
+        const res = await prepareVeterinaryDocument(file, (prog) => {
           setScanProgress(prog);
         });
         setOcrResult(res);
-        if (res.clinicName) setClinicName(res.clinicName);
-        if (res.rawExpiryValue) setCertExpiry(res.rawExpiryValue);
       } catch (err) {
-        console.error('OCR scan error:', err);
+        setFormError(err.message || 'Unable to prepare this document.');
+        setCertFile(null);
+        setCertPreview(null);
       } finally {
         setIsScanning(false);
       }
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
 
@@ -84,7 +90,7 @@ export default function AddPetModal({ isOpen, onClose, onAddPet }) {
 
     // MANDATORY VACCINE CERTIFICATE CHECK
     if (!certFile) {
-      setFormError('Mandatory Requirement: Please upload an official veterinary vaccine certificate to guarantee health confirmation.');
+      setFormError('Please upload an official veterinary vaccine certificate for review.');
       return;
     }
 
@@ -93,10 +99,25 @@ export default function AddPetModal({ isOpen, onClose, onAddPet }) {
       return;
     }
 
+    if (!currentUserId) {
+      setFormError('Sign in before registering a pet with a private veterinary document.');
+      return;
+    }
+
     const chosenAvatar = customAvatar || presetPhotos[avatarIndex];
+    const petId = `user_pet_${Date.now()}`;
+    setIsSubmitting(true);
+    let storagePath;
+    try {
+      storagePath = await uploadVeterinaryDocument({ userId: currentUserId, petId, file: certFile });
+    } catch (uploadError) {
+      setFormError(uploadError.message);
+      setIsSubmitting(false);
+      return;
+    }
 
     const newPet = {
-      id: `user_pet_${Date.now()}`,
+      id: petId,
       name: name.trim(),
       species,
       breed: breed.trim(),
@@ -110,7 +131,7 @@ export default function AddPetModal({ isOpen, onClose, onAddPet }) {
       personality: ['Friendly', 'Social', 'Curious', 'Loving'],
       playStyle,
       energyLevel,
-      vaccinated: true,
+      vaccinated: false,
       size: parseInt(weight) > 22 ? 'Large' : parseInt(weight) > 10 ? 'Medium' : 'Small',
       neighborhood: 'Indiranagar, Bengaluru, Karnataka',
       owner: {
@@ -122,20 +143,22 @@ export default function AddPetModal({ isOpen, onClose, onAddPet }) {
         preferredTimes: 'Weekday evenings (5-7 PM), Weekend mornings'
       },
       health: {
-        status: 'Optimal',
+        status: 'Pending Review',
         vaccineCertificate: {
           id: `cert_${Date.now()}`,
           documentName: certFile.name,
           fileSize: `${(certFile.size / 1024).toFixed(0)} KB`,
-          clinicName: clinicName.trim() || 'Cessna Lifeline Veterinary Hospital',
-          doctor: 'Licensed Veterinarian, BVSc',
-          licenseNumber: 'VCI Reg #Verified',
+          clinicName: clinicName.trim(),
+          doctor: null,
+          licenseNumber: null,
           issueDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
           expiryDate: new Date(certExpiry).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-          verified: true,
-          verifiedAt: new Date().toISOString(),
-          status: 'Confirmed & Valid',
-          previewUrl: certPreview || 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=800&q=80',
+          verified: false,
+          reviewStatus: 'pending',
+          submittedAt: new Date().toISOString(),
+          status: 'Pending veterinary review',
+          documentChecksum: ocrResult?.checksum || null,
+          storagePath,
           coreVaccines: ['Rabies (3-Year)', 'DHPP Core Shot']
         },
         vaccinations: [
@@ -143,14 +166,14 @@ export default function AddPetModal({ isOpen, onClose, onAddPet }) {
             name: 'Rabies (3-Year)',
             date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
             validUntil: new Date(certExpiry).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-            status: 'valid',
+            status: 'pending',
             clinic: clinicName.trim()
           },
           {
             name: 'DHPP Core Shot',
             date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
             validUntil: new Date(certExpiry).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-            status: 'valid',
+            status: 'pending',
             clinic: clinicName.trim()
           }
         ],
@@ -175,6 +198,7 @@ export default function AddPetModal({ isOpen, onClose, onAddPet }) {
     };
 
     onAddPet(newPet);
+    setIsSubmitting(false);
     onClose();
   };
 
@@ -393,7 +417,7 @@ export default function AddPetModal({ isOpen, onClose, onAddPet }) {
             </div>
 
             <p className="text-[11px] text-slate-500 mb-2.5">
-              To ensure safety and guaranteed health confirmation for playmates, please attach your pet's official veterinary vaccination certificate (PDF or photo).
+              Attach an official veterinary vaccination certificate. It will remain pending until a qualified reviewer confirms it.
             </p>
 
             <label className={`border-2 border-dashed rounded-2xl p-4 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
@@ -438,14 +462,14 @@ export default function AddPetModal({ isOpen, onClose, onAddPet }) {
               )}
             </label>
 
-            {/* AI / OCR Laser Scanning Feedback */}
+            {/* Document validation feedback */}
             {isScanning && (
               <div className="mt-2 p-3.5 rounded-2xl bg-slate-950 text-white border border-emerald-500/40 relative overflow-hidden shadow-md">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <ScanLine className="w-4 h-4 text-emerald-400 animate-pulse" />
                     <span className="text-xs font-black text-emerald-300">
-                      AI OCR Scanning in Progress...
+                      Preparing document…
                     </span>
                   </div>
                   <span className="text-xs font-extrabold text-emerald-400 font-mono">
@@ -462,31 +486,27 @@ export default function AddPetModal({ isOpen, onClose, onAddPet }) {
                 </div>
 
                 <p className="text-[11px] text-slate-300 font-medium">
-                  {scanProgress?.message || 'Analyzing certificate typography and seal...'}
+                  {scanProgress?.message || 'Validating the uploaded document…'}
                 </p>
               </div>
             )}
 
-            {/* OCR Verification Success Card */}
+            {/* Review status card */}
             {ocrResult && !isScanning && (
               <div className="mt-2 p-3.5 rounded-2xl bg-emerald-50 border-2 border-emerald-500/50 shadow-xs space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
                     <span className="text-xs font-black text-slate-900">
-                      OCR Verification Successful
+                      Ready for review
                     </span>
                   </div>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-200/80 text-emerald-900 text-[10px] font-black">
-                    {ocrResult.confidence}% Match
-                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-black">Pending</span>
                 </div>
 
                 <div className="text-[11px] text-slate-600 space-y-1 bg-white/80 p-2.5 rounded-xl border border-emerald-200/60">
-                  <div><strong>Verified Clinic:</strong> {ocrResult.clinicName} ({ocrResult.licenseNumber})</div>
-                  <div><strong>Attending DVM:</strong> {ocrResult.doctor}</div>
-                  <div><strong>Core Immunizations:</strong> Rabies, DHPP, Bordetella, Leptospirosis</div>
-                  <div className="text-emerald-700 font-bold">✓ Clearance: {ocrResult.clearanceStatus}</div>
+                  <div>{ocrResult.message}</div>
+                  <div className="font-mono text-[9px] break-all">Fingerprint: {ocrResult.checksum || 'Unavailable'}</div>
                 </div>
               </div>
             )}
@@ -526,10 +546,11 @@ export default function AddPetModal({ isOpen, onClose, onAddPet }) {
           <div className="pt-2">
             <button
               type="submit"
+              disabled={isSubmitting}
               className="w-full py-3.5 px-4 rounded-2xl bg-coral-500 hover:bg-coral-600 text-white font-black text-sm shadow-lg shadow-coral-500/30 transition-all active:scale-95 flex items-center justify-center gap-2"
             >
               <ShieldCheck className="w-4 h-4" />
-              <span>Register Pet with Health Confirmation</span>
+              <span>{isSubmitting ? 'Uploading securely…' : 'Register Pet & Submit for Review'}</span>
             </button>
           </div>
 

@@ -18,17 +18,18 @@ import {
 import QRCode from 'qrcode';
 
 export default function PetPassportModal({ isOpen, onClose, pet, onCopy }) {
-  if (!isOpen || !pet) return null;
-
   const [copiedField, setCopiedField] = useState(null);
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [showLostPetSimulator, setShowLostPetSimulator] = useState(false);
 
   const microchipNumber = '985141002948123';
   const rabiesTag = 'SF-2026-R8841';
-  const passportUrl = `https://pawfectmatch.app/passport/${pet.id}?name=${encodeURIComponent(pet.name)}&chip=${microchipNumber}&contact=4155550192`;
+  const passportUrl = pet
+    ? `https://pawfectmatch.app/passport/${pet.id}?name=${encodeURIComponent(pet.name)}&chip=${microchipNumber}`
+    : '';
 
   useEffect(() => {
+    if (!isOpen || !pet) return undefined;
     QRCode.toDataURL(passportUrl, {
       width: 280,
       margin: 1.5,
@@ -39,7 +40,10 @@ export default function PetPassportModal({ isOpen, onClose, pet, onCopy }) {
     })
       .then((url) => setQrCodeUrl(url))
       .catch((err) => console.error('QR generation failed:', err));
-  }, [pet, passportUrl]);
+    return undefined;
+  }, [isOpen, pet, passportUrl]);
+
+  if (!isOpen || !pet) return null;
 
   const handleCopy = (text, field) => {
     navigator.clipboard?.writeText?.(text);

@@ -20,11 +20,11 @@ import {
 } from '../../utils/calendar';
 
 export default function CalendarConnectorModal({ isOpen, onClose, event, onNotify }) {
-  if (!isOpen || !event) return null;
-
   const [emailInput, setEmailInput] = useState('');
   const [emailSent, setEmailSent] = useState(false);
   const [downloadedIcs, setDownloadedIcs] = useState(false);
+
+  if (!isOpen || !event) return null;
 
   const title = event.title || 'Pet Playdate';
   const location = event.location || event.address || 'Dog Play Area';

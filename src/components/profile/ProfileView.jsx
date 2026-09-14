@@ -200,7 +200,7 @@ export default function ProfileView({
                 </h3>
                 <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold flex items-center gap-1 border border-emerald-300">
                   <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                  Confirmed 🛡️
+                  {userPet.health?.vaccineCertificate?.verified ? 'Confirmed 🛡️' : 'Pending review'}
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -222,7 +222,9 @@ export default function ProfileView({
                 {userPet.health?.vaccineCertificate?.documentName || `${userPet.name}_Official_Vaccine_Certificate.pdf`}
               </span>
               <span className="text-[10px] text-slate-500">
-                Official document uploaded • Core rabies & distemper verified
+                {userPet.health?.vaccineCertificate?.verified
+                  ? 'Official document uploaded • Vaccinations verified'
+                  : 'Document submitted • Awaiting qualified review'}
               </span>
             </div>
           </div>

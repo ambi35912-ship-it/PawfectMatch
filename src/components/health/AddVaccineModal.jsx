@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { X, ShieldCheck, Stethoscope, MapPin, Phone, Calendar, Hash } from 'lucide-react';
 
 export default function AddVaccineModal({ isOpen, onClose, onAddVaccine }) {
-  if (!isOpen) return null;
-
   const [name, setName] = useState('Bordetella (Kennel Cough)');
   const [date, setDate] = useState('Sep 09, 2026');
   const [validUntil, setValidUntil] = useState('Sep 2027');
@@ -14,6 +12,8 @@ export default function AddVaccineModal({ isOpen, onClose, onAddVaccine }) {
   const [address, setAddress] = useState('148, 1st Cross, Domlur 2nd Stage, Bengaluru, Karnataka');
   const [phone, setPhone] = useState('+91 80 4115 1234');
   const [lotNumber, setLotNumber] = useState('VCI-LOT-88219-IND');
+
+  if (!isOpen) return null;
 
   const presetVaccines = [
     'Bordetella (Kennel Cough)',

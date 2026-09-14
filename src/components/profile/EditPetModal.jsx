@@ -13,22 +13,22 @@ import {
 } from 'lucide-react';
 
 export default function EditPetModal({ isOpen, onClose, pet, onSave }) {
-  if (!isOpen || !pet) return null;
-
-  const [name, setName] = useState(pet.name || '');
-  const [species, setSpecies] = useState(pet.species || 'Dog');
-  const [breed, setBreed] = useState(pet.breed || '');
-  const [age, setAge] = useState(pet.age || '2 yrs');
-  const [gender, setGender] = useState(pet.gender || 'Male');
-  const [weight, setWeight] = useState(pet.weight || '25 kg');
-  const [energyLevel, setEnergyLevel] = useState(pet.energyLevel || 'High');
-  const [playStyle, setPlayStyle] = useState(pet.playStyle || 'High-energy Fetch & Gentle Romping');
-  const [bio, setBio] = useState(pet.bio || '');
-  const [quirks, setQuirks] = useState(pet.quirks || '');
-  const [favoriteToy, setFavoriteToy] = useState(pet.favoriteToy || 'Tennis ball & squeaky duck');
-  const [personalityTags, setPersonalityTags] = useState(pet.personality || ['Playful', 'Social', 'Loving']);
+  const [name, setName] = useState(pet?.name || '');
+  const [species, setSpecies] = useState(pet?.species || 'Dog');
+  const [breed, setBreed] = useState(pet?.breed || '');
+  const [age, setAge] = useState(pet?.age || '2 yrs');
+  const [gender, setGender] = useState(pet?.gender || 'Male');
+  const [weight, setWeight] = useState(pet?.weight || '25 kg');
+  const [energyLevel, setEnergyLevel] = useState(pet?.energyLevel || 'High');
+  const [playStyle, setPlayStyle] = useState(pet?.playStyle || 'High-energy Fetch & Gentle Romping');
+  const [bio, setBio] = useState(pet?.bio || '');
+  const [quirks, setQuirks] = useState(pet?.quirks || '');
+  const [favoriteToy, setFavoriteToy] = useState(pet?.favoriteToy || 'Tennis ball & squeaky duck');
+  const [personalityTags, setPersonalityTags] = useState(pet?.personality || ['Playful', 'Social', 'Loving']);
   const [newTagInput, setNewTagInput] = useState('');
-  const [avatar, setAvatar] = useState(pet.avatar || '');
+  const [avatar, setAvatar] = useState(pet?.avatar || '');
+
+  if (!isOpen || !pet) return null;
 
   const handlePhotoUpload = (e) => {
     const file = e.target.files?.[0];

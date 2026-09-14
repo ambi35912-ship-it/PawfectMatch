@@ -69,10 +69,10 @@ export default function HealthDashboard({
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-black text-slate-900 truncate">
-                Health Confirmed
+                {userPet.health?.vaccineCertificate?.verified ? 'Health Confirmed' : 'Review Pending'}
               </span>
               <span className="text-[10px] font-extrabold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded-md">
-                Official Cert
+                {userPet.health?.vaccineCertificate?.verified ? 'Official Cert' : 'Unverified'}
               </span>
             </div>
             <p className="text-[10px] text-slate-500 truncate">

@@ -10,31 +10,54 @@ const monthMap = {
 };
 
 export function parseValidUntilDate(dateStr) {
-  if (!dateStr) return new Date();
-  
-  // Clean string e.g. "Aug 2026", "August 2026", "Nov 18, 2026", "2026-08-31"
-  const parts = dateStr.trim().toLowerCase().replace(/,/g, '').split(/\s+/);
-  
-  if (parts.length >= 2) {
-    const monthKey = parts[0].slice(0, 3);
-    const year = parseInt(parts[1], 10) || parseInt(parts[2], 10) || 2026;
-    const monthIdx = monthMap[monthKey] !== undefined ? monthMap[monthKey] : 8;
-    
-    // Set to the end of that expiration month
-    return new Date(year, monthIdx + 1, 0, 23, 59, 59);
+  if (!dateStr || typeof dateStr !== 'string') return null;
+
+  const value = dateStr.trim();
+  const isoMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (isoMatch) {
+    const [, year, month, day] = isoMatch.map(Number);
+    const parsed = new Date(year, month - 1, day, 23, 59, 59);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
   }
   
-  const parsed = new Date(dateStr);
-  return isNaN(parsed.getTime()) ? new Date() : parsed;
+  // Clean string e.g. "Aug 2026", "August 2026", "Nov 18, 2026", "2026-08-31"
+  const parts = value.toLowerCase().replace(/,/g, '').split(/\s+/);
+  
+  if (parts.length === 2 || parts.length === 3) {
+    const monthKey = parts[0].slice(0, 3);
+    const monthIdx = monthMap[monthKey];
+    const year = Number(parts.at(-1));
+    if (monthIdx !== undefined && Number.isInteger(year) && year >= 2000 && year <= 2200) {
+      if (parts.length === 3) {
+        const day = Number(parts[1]);
+        if (!Number.isInteger(day) || day < 1 || day > 31) return null;
+        return new Date(year, monthIdx, day, 23, 59, 59);
+      }
+      return new Date(year, monthIdx + 1, 0, 23, 59, 59);
+    }
+  }
+  
+  return null;
 }
 
-export function evaluateVaccineRecords(vaccinations = [], referenceDate = new Date('2026-09-09T19:40:00')) {
+export function evaluateVaccineRecords(vaccinations = [], referenceDate = new Date()) {
   const overdueList = [];
   const expiringSoonList = [];
   const validList = [];
 
   vaccinations.forEach((vax) => {
     const expiryDate = parseValidUntilDate(vax.validUntil);
+    if (!expiryDate) {
+      overdueList.push({
+        ...vax,
+        expiryDate: null,
+        diffDays: null,
+        computedStatus: 'unknown',
+        badgeText: 'Expiry date needs review',
+        actionNote: 'Add a valid expiration date'
+      });
+      return;
+    }
     const diffMs = expiryDate.getTime() - referenceDate.getTime();
     const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 

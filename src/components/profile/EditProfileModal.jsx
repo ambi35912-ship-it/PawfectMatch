@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { X, User, Check, Sparkles, Camera } from 'lucide-react';
 
 export default function EditProfileModal({ isOpen, onClose, owner, onSave }) {
-  if (!isOpen) return null;
-
   const [name, setName] = useState(owner?.name || 'Arjun Mehta');
   const [neighborhood, setNeighborhood] = useState(owner?.neighborhood || 'Indiranagar, Bengaluru');
   const [preferredTimes, setPreferredTimes] = useState(owner?.preferredTimes || 'Weekday evenings (5:30-7 PM), Weekend mornings at Cubbon Park');
   const [avatarIndex, setAvatarIndex] = useState(0);
   const [customAvatar, setCustomAvatar] = useState(null);
+
+  if (!isOpen) return null;
 
   const ownerAvatars = [
     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',

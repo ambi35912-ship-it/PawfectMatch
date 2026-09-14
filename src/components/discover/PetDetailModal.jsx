@@ -26,9 +26,8 @@ export default function PetDetailModal({
   onSchedulePlaydate,
   onViewCertificate
 }) {
-  if (!isOpen || !pet) return null;
-
   const [activePhoto, setActivePhoto] = useState(0);
+  if (!isOpen || !pet) return null;
   const photos = pet.photos && pet.photos.length > 0 ? pet.photos : [pet.primaryPhoto];
 
   return (

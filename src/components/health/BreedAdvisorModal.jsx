@@ -3,9 +3,8 @@ import { X, Sparkles, ShieldCheck, Stethoscope, AlertTriangle, Calendar, Info, C
 import { breedProfiles } from '../../data/breedHealthAdvisor';
 
 export default function BreedAdvisorModal({ isOpen, onClose, currentBreed, onAddToCalendar }) {
-  if (!isOpen) return null;
-
   const [selectedBreed, setSelectedBreed] = useState(currentBreed || 'Golden Retriever');
+  if (!isOpen) return null;
   const availableBreeds = Object.keys(breedProfiles).filter(b => b !== 'Default Dog');
   const profile = breedProfiles[selectedBreed] || breedProfiles['Golden Retriever'];
 

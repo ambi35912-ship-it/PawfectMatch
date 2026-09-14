@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
 import { X, UploadCloud, FileText, CheckCircle2, AlertCircle, Building2, Calendar, ShieldCheck, Check, Sparkles, ScanLine, Award } from 'lucide-react';
-import { scanVeterinaryDocument } from '../../utils/ocrScanner';
+import { prepareVeterinaryDocument } from '../../utils/documentIntake';
+import { uploadVeterinaryDocument } from '../../lib/documentStorage';
 
-export default function UploadCertificateModal({ isOpen, onClose, pet, onSave }) {
-  if (!isOpen || !pet) return null;
-
+export default function UploadCertificateModal({ isOpen, onClose, pet, onSaveCertificate, currentUserId }) {
   const [file, setFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
-  const [clinicName, setClinicName] = useState('Bay Area Pet Hospital');
-  const [doctorName, setDoctorName] = useState('Dr. Sarah Chen, DVM');
-  const [expiryDate, setExpiryDate] = useState('2028-10-14');
+  const [clinicName, setClinicName] = useState('');
+  const [doctorName, setDoctorName] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
   const [coreVaccine, setCoreVaccine] = useState('Rabies (3-Year) & DHPP Core');
   const [error, setError] = useState('');
 
-  // OCR Verification State
+  // Safe document intake state. Verification is performed by a human reviewer.
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(null);
   const [ocrResult, setOcrResult] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (!isOpen || !pet) return null;
 
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files?.[0];
@@ -26,30 +28,31 @@ export default function UploadCertificateModal({ isOpen, onClose, pet, onSave })
     setFile(selectedFile);
     setOcrResult(null);
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setFilePreview(reader.result);
-    };
-    reader.readAsDataURL(selectedFile);
+    if (selectedFile.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = () => setFilePreview(reader.result);
+      reader.readAsDataURL(selectedFile);
+    } else {
+      setFilePreview(null);
+    }
 
-    // Trigger intelligent OCR scan
+    // Validate and fingerprint the file; do not fabricate medical verification.
     setIsScanning(true);
     try {
-      const res = await scanVeterinaryDocument(selectedFile, (prog) => {
+      const res = await prepareVeterinaryDocument(selectedFile, (prog) => {
         setScanProgress(prog);
       });
       setOcrResult(res);
-      if (res.clinicName) setClinicName(res.clinicName);
-      if (res.doctor) setDoctorName(res.doctor);
-      if (res.rawExpiryValue) setExpiryDate(res.rawExpiryValue);
     } catch (err) {
-      console.error('OCR error:', err);
+      setError(err.message || 'Unable to prepare this document.');
+      setFile(null);
+      setFilePreview(null);
     } finally {
       setIsScanning(false);
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file) {
       setError('Please upload an official vaccine certificate document or photo.');
@@ -60,25 +63,41 @@ export default function UploadCertificateModal({ isOpen, onClose, pet, onSave })
       return;
     }
 
+    if (!currentUserId) {
+      setError('Sign in before submitting a private veterinary document.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    let storagePath;
+    try {
+      storagePath = await uploadVeterinaryDocument({ userId: currentUserId, petId: pet.id, file });
+    } catch (uploadError) {
+      setError(uploadError.message);
+      setIsSubmitting(false);
+      return;
+    }
+
     const certData = {
       id: `cert_${Date.now()}`,
       documentName: file.name,
       fileSize: `${(file.size / 1024).toFixed(0)} KB`,
       clinicName: clinicName.trim(),
-      doctor: doctorName.trim() || 'Licensed Veterinarian',
-      licenseNumber: ocrResult?.licenseNumber || 'CA-VET #Verified',
+      doctor: doctorName.trim() || null,
+      licenseNumber: null,
       issueDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       expiryDate: new Date(expiryDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-      verified: true,
-      ocrVerified: true,
-      ocrConfidence: ocrResult?.confidence || 98.4,
-      verifiedAt: new Date().toISOString(),
-      status: 'Confirmed & Valid',
-      previewUrl: filePreview || 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=800&q=80',
-      coreVaccines: ocrResult?.verifiedCoreVaccines || [coreVaccine, 'Rabies Protection']
+      verified: false,
+      reviewStatus: 'pending',
+      submittedAt: new Date().toISOString(),
+      status: 'Pending veterinary review',
+      documentChecksum: ocrResult?.checksum || null,
+      storagePath,
+      coreVaccines: [coreVaccine]
     };
 
-    onSave(certData);
+    onSaveCertificate(certData);
+    setIsSubmitting(false);
     onClose();
   };
 
@@ -98,7 +117,7 @@ export default function UploadCertificateModal({ isOpen, onClose, pet, onSave })
                   Upload Vaccine Certificate
                 </h3>
                 <span className="px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold uppercase border border-emerald-300">
-                  Mandatory
+                  Review required
                 </span>
               </div>
               <p className="text-xs text-slate-500">
@@ -179,14 +198,14 @@ export default function UploadCertificateModal({ isOpen, onClose, pet, onSave })
               )}
             </label>
 
-            {/* AI / OCR Laser Scanning Feedback */}
+            {/* Document validation feedback */}
             {isScanning && (
               <div className="mt-2.5 p-3.5 rounded-2xl bg-slate-950 text-white border border-emerald-500/40 relative overflow-hidden shadow-md">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <ScanLine className="w-4 h-4 text-emerald-400 animate-pulse" />
                     <span className="text-xs font-black text-emerald-300">
-                      AI OCR Scanning in Progress...
+                      Preparing document…
                     </span>
                   </div>
                   <span className="text-xs font-extrabold text-emerald-400 font-mono">
@@ -203,31 +222,27 @@ export default function UploadCertificateModal({ isOpen, onClose, pet, onSave })
                 </div>
 
                 <p className="text-[11px] text-slate-300 font-medium">
-                  {scanProgress?.message || 'Analyzing veterinary certificate typography and seal...'}
+                  {scanProgress?.message || 'Validating the uploaded document…'}
                 </p>
               </div>
             )}
 
-            {/* OCR Verification Success Card */}
+            {/* Review status card */}
             {ocrResult && !isScanning && (
               <div className="mt-2.5 p-3.5 rounded-2xl bg-emerald-50 border-2 border-emerald-500/50 shadow-xs space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
                     <span className="text-xs font-black text-slate-900">
-                      OCR Verification Successful
+                      Ready for review
                     </span>
                   </div>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-200/80 text-emerald-900 text-[10px] font-black">
-                    {ocrResult.confidence}% Match
-                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-black">Pending</span>
                 </div>
 
                 <div className="text-[11px] text-slate-600 space-y-1 bg-white/80 p-2.5 rounded-xl border border-emerald-200/60">
-                  <div><strong>Verified Clinic:</strong> {ocrResult.clinicName} ({ocrResult.licenseNumber})</div>
-                  <div><strong>Attending DVM:</strong> {ocrResult.doctor}</div>
-                  <div><strong>Core Immunizations:</strong> Rabies, DHPP, Bordetella, Leptospirosis</div>
-                  <div className="text-emerald-700 font-bold">✓ Clearance: {ocrResult.clearanceStatus}</div>
+                  <div>{ocrResult.message}</div>
+                  <div className="font-mono text-[9px] break-all">Fingerprint: {ocrResult.checksum || 'Unavailable'}</div>
                 </div>
               </div>
             )}
@@ -276,17 +291,18 @@ export default function UploadCertificateModal({ isOpen, onClose, pet, onSave })
 
           {/* Explanation Callout */}
           <div className="p-3 rounded-2xl bg-warm-50 border border-warm-200 text-slate-600 text-[11px] leading-relaxed">
-            🛡️ <strong>Safety Guarantee:</strong> Uploading official vaccination proof guarantees verified health status across the Pawfect Match network, assuring playmates that your pet is safe to meet.
+            🛡️ <strong>Review policy:</strong> Uploading a document does not verify its medical contents. Pawfect Match marks it pending until a qualified reviewer confirms it.
           </div>
 
           {/* Submit */}
           <div className="pt-2">
             <button
               type="submit"
+              disabled={isSubmitting}
               className="w-full py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition-all active:scale-98"
             >
               <ShieldCheck className="w-4 h-4" />
-              <span>Verify & Save Certificate</span>
+              <span>{isSubmitting ? 'Uploading securely…' : 'Submit Certificate for Review'}</span>
             </button>
           </div>
 

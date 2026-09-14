@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, ShieldCheck, CheckCircle2, Download, Building2, Calendar, FileText, Award, User, AlertCircle, Check } from 'lucide-react';
+import { getVeterinaryDocumentUrl } from '../../lib/documentStorage';
 
 function generateOfficialCertificate(pet, cert) {
   const canvas = document.createElement('canvas');
@@ -220,9 +221,10 @@ function generateOfficialCertificate(pet, cert) {
 }
 
 export default function ViewCertificateModal({ isOpen, onClose, pet }) {
-  if (!isOpen || !pet) return null;
-
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [downloadError, setDownloadError] = useState('');
+
+  if (!isOpen || !pet) return null;
 
   const vetClinicParts = pet.healthSummary?.verifiedVet?.split('•') || [];
   const cert = pet.health?.vaccineCertificate || {
@@ -233,26 +235,30 @@ export default function ViewCertificateModal({ isOpen, onClose, pet }) {
     documentName: `${pet.name.toLowerCase()}_verified_vaccine_record.pdf`,
     verified: true
   };
+  const isVerified = cert.verified === true;
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
+    setDownloadError('');
     try {
-      if (cert?.previewUrl && (cert.previewUrl.startsWith('data:') || cert.previewUrl.startsWith('blob:'))) {
+      if (cert?.storagePath) {
+        const signedUrl = await getVeterinaryDocumentUrl(cert.storagePath);
+        window.open(signedUrl, '_blank', 'noopener,noreferrer');
+      } else if (cert?.previewUrl && (cert.previewUrl.startsWith('data:') || cert.previewUrl.startsWith('blob:'))) {
         const link = document.createElement('a');
         link.href = cert.previewUrl;
         link.download = cert.documentName || `${pet.name.toLowerCase()}_vaccine_certificate`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-      } else {
+      } else if (isVerified) {
         generateOfficialCertificate(pet, cert);
+      } else {
+        throw new Error('The private document is unavailable. Please upload it again.');
       }
       setDownloadSuccess(true);
       setTimeout(() => setDownloadSuccess(false), 2500);
     } catch (err) {
-      console.error('Download error, falling back to generator:', err);
-      generateOfficialCertificate(pet, cert);
-      setDownloadSuccess(true);
-      setTimeout(() => setDownloadSuccess(false), 2500);
+      setDownloadError(err.message || 'The document could not be opened.');
     }
   };
 
@@ -273,11 +279,11 @@ export default function ViewCertificateModal({ isOpen, onClose, pet }) {
                 </h3>
                 <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold flex items-center gap-0.5 border border-emerald-300">
                   <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                  Verified
+                  {isVerified ? 'Verified' : 'Pending review'}
                 </span>
               </div>
               <p className="text-xs text-slate-500">
-                Official medical health proof for {pet.name}
+                {isVerified ? `Verified medical record for ${pet.name}` : `Submitted document for ${pet.name}`}
               </p>
             </div>
           </div>
@@ -314,7 +320,7 @@ export default function ViewCertificateModal({ isOpen, onClose, pet }) {
                 </div>
               </div>
               <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                CERTIFIED
+                {isVerified ? 'CERTIFIED' : 'UNVERIFIED'}
               </span>
             </div>
 
@@ -344,7 +350,7 @@ export default function ViewCertificateModal({ isOpen, onClose, pet }) {
             {/* Core Vaccinations Validated */}
             <div className="space-y-2 mb-4">
               <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">
-                Confirmed Vaccinations on Certificate
+                {isVerified ? 'Confirmed Vaccinations on Certificate' : 'Owner-reported Vaccinations'}
               </span>
               
               {(pet.health?.vaccinations || [
@@ -360,7 +366,7 @@ export default function ViewCertificateModal({ isOpen, onClose, pet }) {
                     <span className="font-black text-slate-900">{vax.name}</span>
                   </div>
                   <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
-                    Valid until {vax.validUntil}
+                    {isVerified ? 'Valid until' : 'Reported until'} {vax.validUntil}
                   </span>
                 </div>
               ))}
@@ -392,14 +398,18 @@ export default function ViewCertificateModal({ isOpen, onClose, pet }) {
           <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-2.5 text-emerald-900 text-xs">
             <Award className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
             <p className="leading-relaxed text-[11px] font-medium">
-              This certificate confirms to other pet parents that <strong>{pet.name}</strong> is fully up to date with core immunizations and medically verified for safe, friendly outdoor playdates.
+              {isVerified
+                ? <>This record confirms that <strong>{pet.name}</strong> has been reviewed and marked up to date with the listed immunizations.</>
+                : <>This document has not been medically verified. Do not rely on it as proof of vaccination until a qualified reviewer approves it.</>}
             </p>
           </div>
 
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 border-t border-warm-100 bg-white flex items-center gap-2.5 shrink-0">
+        <div className="p-4 border-t border-warm-100 bg-white shrink-0">
+          {downloadError && <p role="alert" className="mb-2 text-xs font-semibold text-rose-700">{downloadError}</p>}
+          <div className="flex items-center gap-2.5">
           <button
             onClick={onClose}
             className="flex-1 py-3 rounded-2xl bg-warm-100 hover:bg-warm-200 text-slate-800 font-bold text-xs transition-colors"
@@ -427,6 +437,7 @@ export default function ViewCertificateModal({ isOpen, onClose, pet }) {
               </>
             )}
           </button>
+          </div>
         </div>
 
       </div>

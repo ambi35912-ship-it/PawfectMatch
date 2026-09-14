@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { X, Camera, Image, Send, Check } from 'lucide-react';
 
 export default function PhotoAttachmentModal({ isOpen, onClose, onSendPhoto }) {
-  if (!isOpen) return null;
-
   const [selectedPhoto, setSelectedPhoto] = useState(0);
   const [caption, setCaption] = useState('Milo having the best time at the park today! 🐾');
+
+  if (!isOpen) return null;
 
   const photos = [
     { url: 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=600&q=80', label: 'Park Sprint' },
